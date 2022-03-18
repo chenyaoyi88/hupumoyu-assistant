@@ -259,12 +259,11 @@
             oPaginationHide.innerHTML = '';
         }
 
-        setTimeout(() => {
-            window.scrollTo(0, 0);
-        }, 100);
-
+        const oContent = document.querySelector('#hupumoyu-content-box');
         // 用来隐藏页面未渲染完成时页面凌乱的状态
-        document.querySelector('#hupumoyu-content-box').classList.remove('hide');
+        oContent.classList.remove('hide');
+        // 滚到最顶部
+        oContent.scrollTop = 0;
 
         setReplyClick();
         addImgHideCoverClass();
