@@ -1,12 +1,12 @@
-# hupumoyu-assistant
-### 虎扑摸鱼助手
+# 虎扑摸鱼助手（hupumoyu-assistant）
+## 安装使用
+
+安装插件：在 vscode 插件市场搜 虎扑摸鱼助手 安装即可，VSCode 最低版本要求：^1.64.0
 
 安装完成之后，可以 Ctrl + Shift + P 或者 F1 输入 显示虎扑摸鱼助手，选择后即可出现在最左侧的工具栏中。
 
-### 安装使用
-
-安装插件：在 vscode 插件市场搜 虎扑摸鱼助手 即可，VSCode 最低版本要求：^1.64.0
-### 功能介绍
+[有问题可以在这里提出](https://github.com/chenyaoyi88/hupumoyu-assistant/issues)
+## 功能介绍
 
 插件目前有两个板块组成，分别是 NBA 和 步行街，如下图
 
