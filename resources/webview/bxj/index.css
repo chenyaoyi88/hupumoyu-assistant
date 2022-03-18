@@ -1,0 +1,51 @@
+body {
+	background-color: transparent;
+}
+
+.hupumoyu-module-title {
+	margin: 0;
+	text-align: center;
+	padding: 5px 0;
+}
+
+.hupumoyu-module-title .hupumoyu-module-type {
+	cursor: pointer;
+}
+
+.hupumoyu-module-list {
+	padding: 0;
+	margin: 0;
+	overflow: hidden;
+}
+
+.hupumoyu-module-list:hover {
+	margin-right: -20px;
+	padding-right: 10px;
+	overflow-y: auto;
+}
+
+.hupumoyu-module-list .hupumoyu-module-item {
+	margin-bottom: 5px;
+	cursor: pointer;
+}
+
+.hupumoyu-module-list .hupumoyu-module-item .hupumoyu-module-item-desc {
+	opacity: 0.6;
+	padding: 0 8px;
+}
+
+.hupumoyu-module-page {
+	display: flex;
+	margin: 0;
+}
+
+.hupumoyu-module-page .hupumoyu-module-page-item {
+	text-align: center;
+	padding: 5px 0;
+}
+
+.hupumoyu-module-page .hupumoyu-module-page-item.prev,
+.hupumoyu-module-page .hupumoyu-module-page-item.next {
+	flex: 1;
+	cursor: pointer;
+}

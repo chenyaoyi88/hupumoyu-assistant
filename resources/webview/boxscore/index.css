@@ -1,0 +1,73 @@
+.hupumoyu-body img {
+    cursor: pointer;
+}
+
+.hupumoyu-body img.hide {
+    opacity: 0;
+    width: 100%;
+    height: 100px;
+}
+
+.hupumoyu-body img.show {
+    opacity: 1;
+}
+
+.table_choose {
+    display: none;
+}
+
+.team_vs {}
+
+.team_vs .team_vs_box {
+    display: flex;
+    justify-content: center;
+}
+
+.team_vs .team_vs_box .img {
+    display: none;
+}
+
+.team_vs .team_vs_box .message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 2;
+}
+
+.team_vs .about_fonts {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 2;
+    margin: 10px 0;
+}
+
+.yuece_num .yuece_num_a {
+    margin-bottom: 10px;
+}
+
+.yuece_num .yuece_num_a .itinerary_table {
+    width: 100%;
+}
+
+.yuece_num .yuece_num_b {
+    display: none;
+}
+
+.table_list_live {
+    margin-top: 10px;
+}
+
+.table_list_live .tips_layes {
+    display: none;
+}
+
+.table_list_live #J_away_content,
+.table_list_live #J_home_content {
+    width: 100%;
+}
+
+.table_list_live #J_away_content tr,
+.table_list_live #J_home_content tr {
+    background-color: initial !important;
+}

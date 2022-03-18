@@ -1,0 +1,70 @@
+.hupumoyu-body {
+	overflow-y: auto;
+}
+
+.ls-title-box {
+	text-align: center;
+	padding: 5px 10px;
+	min-height: 27px;
+	margin: 0;
+}
+
+.ls-title-box .ls-title-setting {
+	float: left;
+	text-decoration: none;
+	outline: none;
+}
+
+.ls-content-box {
+	display: flex;
+	padding: 0 10px;
+	margin: 0;
+}
+
+.ls-content-box.fd-column {
+	flex-direction: column;
+}
+
+.ls-content-box .ls-content {
+	padding-bottom: 10px;
+	overflow: hidden;
+	flex: 1;
+}
+
+.ls-content-box .ls-content.hide {
+	display: none;
+}
+
+.ls-content-box .ls-content .ls-content-title {
+	padding: 5px;
+	border-top: 1px solid;
+}
+
+.ls-content-box .ls-content .ls-content-wrap {
+	margin: 0 5px;
+	height: 100%;
+	overflow-y: auto;
+	box-sizing: border-box;
+}
+
+.ls-content-box .ls-content .ls-content-item {
+	display: flex;
+	margin: 0;
+	margin-bottom: 5px;
+	margin-right: 5px;
+}
+
+.ls-content-box .ls-content .ls-content-item .ls-content-item-label {}
+
+.ls-content-box .ls-content .ls-content-item .ls-content-item-value {
+	flex: 1;
+	min-width: 50px;
+}
+
+@media screen and (max-width: 450px) {
+	.ls-content-box {
+		display: flex;
+		padding: 0 10px;
+		flex-direction: column;
+	}
+}
