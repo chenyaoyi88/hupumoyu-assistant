@@ -13,6 +13,7 @@ export default class LiveStudioWebView {
     public static currentPanel: LiveStudioWebView | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private readonly _context: vscode.ExtensionContext;
+    private _disposables: vscode.Disposable[] = [];
 
     private constructor(
         context: vscode.ExtensionContext,
@@ -35,17 +36,26 @@ export default class LiveStudioWebView {
                 }
             },
             null,
-            []
+            this._disposables,
         );
 
         // 关闭打开的 webview ，在已打开列表中清除
-        this._panel.onDidDispose(() => {
-            clearTimeout(this.singleMatch.timer);
-            clearTimeout(this.liveText.timer);
-            clearTimeout(this.hotline.timer);
-            LiveStudioWebView.currentPanel = undefined;
-            this._panel.dispose();
-        });
+        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+    }
+
+    public dispose() {
+        clearTimeout(this.singleMatch.timer);
+        clearTimeout(this.liveText.timer);
+        clearTimeout(this.hotline.timer);
+        LiveStudioWebView.currentPanel = undefined;
+        this._panel.dispose();
+
+        while (this._disposables.length) {
+            const x = this._disposables.pop();
+            if (x) {
+                x.dispose();
+            }
+        }
     }
 
     currentMatchInfo: MatchInfo = {
@@ -264,7 +274,7 @@ export default class LiveStudioWebView {
 
     public static createOrShow(context: vscode.ExtensionContext, data: MatchParams) {
 
-        const column = vscode.window.activeTextEditor
+        let column = vscode.window.activeTextEditor
             ? vscode.window.activeTextEditor.viewColumn
             : undefined;
 
@@ -272,6 +282,7 @@ export default class LiveStudioWebView {
 
         // 如果已经打开了一个窗口，则直接刷新窗口内容，不用重新再打开一个新的
         if (LiveStudioWebView.currentPanel) {
+            column = LiveStudioWebView.currentPanel._panel.viewColumn;
             LiveStudioWebView.currentPanel._panel.reveal(column);
             LiveStudioWebView.showLoading();
             LiveStudioWebView.currentPanel._panel.title = data.title;

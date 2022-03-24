@@ -8,6 +8,7 @@ export default class BoxscoreWebView {
     public static currentPanel: BoxscoreWebView | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private readonly _context: vscode.ExtensionContext;
+    private _disposables: vscode.Disposable[] = [];
 
     timer: ReturnType<typeof setTimeout> | any = 0;
     refreshDuration: number = 10000;
@@ -32,16 +33,25 @@ export default class BoxscoreWebView {
                 }
             },
             null,
-            []
+            this._disposables,
         );
 
         // 关闭打开的 webview ，在已打开列表中清除
-        this._panel.onDidDispose(() => {
-            if (BoxscoreWebView.currentPanel) {
-                BoxscoreWebView.currentPanel = undefined;
-                this._panel.dispose();
+        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+    }
+
+    public dispose() {
+        if (BoxscoreWebView.currentPanel) {
+            BoxscoreWebView.currentPanel = undefined;
+            this._panel.dispose();
+        }
+
+        while (this._disposables.length) {
+            const x = this._disposables.pop();
+            if (x) {
+                x.dispose();
             }
-        });
+        }
     }
 
     /**
@@ -91,12 +101,13 @@ export default class BoxscoreWebView {
 
     public static createOrShow(context: vscode.ExtensionContext, data: { title: string; gdcId: string }) {
 
-        const column = vscode.window.activeTextEditor
+        let column = vscode.window.activeTextEditor
             ? vscode.window.activeTextEditor.viewColumn
             : undefined;
 
         // 如果已经打开了一个窗口，则直接刷新窗口内容，不用重新再打开一个新的
         if (BoxscoreWebView.currentPanel) {
+            column = BoxscoreWebView.currentPanel._panel.viewColumn;
             BoxscoreWebView.currentPanel._panel.reveal(column);
             BoxscoreWebView.showLoading();
             BoxscoreWebView.currentPanel._panel.title = data.title;

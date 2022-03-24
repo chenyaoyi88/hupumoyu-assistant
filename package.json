@@ -13,7 +13,7 @@
 		"步行街",
 		"虎扑摸鱼助手"
 	],
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
@@ -35,7 +35,7 @@
 			{
 				"command": "hupumoyu.bossComing",
 				"title": "工作模式",
-				"category": "虎扑摸鱼-领导来了"
+				"category": "虎扑摸鱼-工作模式"
 			},
 			{
 				"command": "hupumoyu.currentDayMatchList",
@@ -132,7 +132,7 @@
 			{
 				"command": "hupumoyu.bossComing",
 				"key": "escape",
-				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView'"
+				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView' || nbaTreeView.active == true || bxjTreeView.active == true"
 			}
 		],
 		"viewsContainers": {

@@ -1,10 +1,13 @@
 import * as request from 'request';
+import * as vscode from 'vscode';
 
 export default function req(url: string, options?: { resJson?: Boolean, tipsName?: string }) {
     return new Promise((resolve, reject) => {
         if (options?.tipsName) {
-            console.log(options.tipsName, '开始请求');
-            console.log('请求地址', url);
+            if (vscode.ExtensionMode.Development === 2) {
+                console.log(options.tipsName, '开始请求');
+                console.log('请求地址', url);
+            }
         }
         request(url, {
             // 10 秒超时
@@ -14,14 +17,20 @@ export default function req(url: string, options?: { resJson?: Boolean, tipsName
                 let resData = {};
                 if (options?.resJson === undefined || options?.resJson) {
                     resData = JSON.parse(body);
-                    console.log(options?.tipsName, '接口响应', resData);
+                    if (vscode.ExtensionMode.Development === 2) {
+                        console.log(options?.tipsName, '接口响应', resData);
+                    }
                 } else {
                     resData = body;
-                    console.log(options?.tipsName, '接口响应');
+                    if (vscode.ExtensionMode.Development === 2) {
+                        console.log(options?.tipsName, '接口响应');
+                    }
                 }
                 resolve(resData);
             } else {
-                console.log(options?.tipsName, '请求错误', err);
+                if (vscode.ExtensionMode.Development === 2) {
+                    console.log(options?.tipsName, '请求错误', err);
+                }
                 reject(err);
             }
         });

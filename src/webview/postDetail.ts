@@ -12,6 +12,7 @@ export default class PostDetailWebView {
     public static currentPanel: PostDetailWebView | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private readonly _context: vscode.ExtensionContext;
+    private _disposables: vscode.Disposable[] = [];
 
     private constructor(
         context: vscode.ExtensionContext,
@@ -71,14 +72,26 @@ export default class PostDetailWebView {
                 }
             },
             null,
-            []
+            this._disposables,
         );
 
         // 关闭打开的 webview ，在已打开列表中清除
-        this._panel.onDidDispose(() => {
+        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+    }
+
+
+    public dispose() {
+        if (PostDetailWebView.currentPanel) {
             PostDetailWebView.currentPanel = undefined;
             this._panel.dispose();
-        });
+        }
+
+        while (this._disposables.length) {
+            const x = this._disposables.pop();
+            if (x) {
+                x.dispose();
+            }
+        }
     }
 
     /**
@@ -134,12 +147,13 @@ export default class PostDetailWebView {
 
     public static createOrShow(context: vscode.ExtensionContext, data: PostDetailInitData) {
 
-        const column = vscode.window.activeTextEditor
+        let column = vscode.window.activeTextEditor
             ? vscode.window.activeTextEditor.viewColumn
             : undefined;
 
         // 如果已经打开了一个窗口，则直接刷新窗口内容，不用重新再打开一个新的
         if (PostDetailWebView.currentPanel) {
+            column = PostDetailWebView.currentPanel._panel.viewColumn;
             PostDetailWebView.currentPanel._panel.reveal(column);
             PostDetailWebView.currentPanel.showLoading();
             PostDetailWebView.currentPanel._panel.title = data.title;

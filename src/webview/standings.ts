@@ -11,6 +11,7 @@ export default class StandinsWebView {
     public static currentPanel: StandinsWebView | undefined;
     private readonly _panel: vscode.WebviewPanel;
     private readonly _context: vscode.ExtensionContext;
+    private _disposables: vscode.Disposable[] = [];
 
     private constructor(
         context: vscode.ExtensionContext,
@@ -35,16 +36,25 @@ export default class StandinsWebView {
                 }
             },
             null,
-            []
+            this._disposables,
         );
 
         // 关闭打开的 webview ，在已打开列表中清除
-        this._panel.onDidDispose(() => {
-            StandinsWebView.currentPanel = undefined;
-            this._panel.dispose();
-        });
+        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
     }
 
+    public dispose() {
+        if (StandinsWebView.currentPanel) {
+            StandinsWebView.currentPanel = undefined;
+            this._panel.dispose();
+        }
+        while (this._disposables.length) {
+            const x = this._disposables.pop();
+            if (x) {
+                x.dispose();
+            }
+        }
+    }
     /**
      * 获取数据
      * @param data 
@@ -86,12 +96,13 @@ export default class StandinsWebView {
 
     public static createOrShow(context: vscode.ExtensionContext, data: any) {
 
-        const column = vscode.window.activeTextEditor
+        let column = vscode.window.activeTextEditor
             ? vscode.window.activeTextEditor.viewColumn
             : undefined;
 
         // 如果已经打开了一个窗口，则直接刷新窗口内容，不用重新再打开一个新的
         if (StandinsWebView.currentPanel) {
+            column = StandinsWebView.currentPanel._panel.viewColumn;
             StandinsWebView.currentPanel._panel.reveal(column);
             StandinsWebView.showLoading();
             StandinsWebView.currentPanel._panel.title = data.title;

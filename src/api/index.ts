@@ -1,5 +1,6 @@
 import req from './request';
 import * as cheerio from 'cheerio';
+import * as vscode from 'vscode';
 
 interface LiveOptions {
     matchId: string,
@@ -90,7 +91,10 @@ export const hupuPostDetail = async (posturl: string) => {
             pagination: $('.pagination.bottom .hupu-rc-pagination').html(),
             tid: posturl.match(/\d+/)?.[0],
         };
-        console.log('6-帖子详情', res);
+
+        if (vscode.ExtensionMode.Development === 2) {
+            console.log('6-帖子详情', res);
+        }
         return res;
     } catch (error) {
         return null;
@@ -132,7 +136,10 @@ export const hupuBxjModule = async (postPageName: string) => {
         const endIndex = resStart.indexOf(endStr);
         const res1 = resStart.substring(0, endIndex);
         const res = JSON.parse(res1);
-        console.log('8-论坛版块', res);
+
+        if (vscode.ExtensionMode.Development === 2) {
+            console.log('8-论坛版块', res);
+        }
         return res;
     } catch (error) {
         return {};
@@ -151,7 +158,10 @@ export const hupuBoxscore = async (gdcId: string) => {
         const res = {
             content: $('.gamecenter_content_l').html() || '',
         };
-        console.log('9-比赛数据', res);
+
+        if (vscode.ExtensionMode.Development === 2) {
+            console.log('9-比赛数据', res);
+        }
         return res;
     } catch (error) {
         return {};
@@ -182,7 +192,10 @@ export const hupuStandings = async () => {
         const res = {
             content: $('.rank_data').html() || '',
         };
-        console.log('11-排名', res);
+
+        if (vscode.ExtensionMode.Development === 2) {
+            console.log('11-排名', res);
+        }
         return res;
     } catch (error) {
         return null;
@@ -201,7 +214,10 @@ export const hupuStats = async (type: string) => {
         const res = {
             content: $('#data_js').html() || '',
         };
-        console.log('12-数据排行', res);
+
+        if (vscode.ExtensionMode.Development === 2) {
+            console.log('12-数据排行', res);
+        }
         return res;
     } catch (error) {
         return null;
