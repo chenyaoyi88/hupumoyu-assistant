@@ -15,8 +15,6 @@ export function activate(context: vscode.ExtensionContext) {
 	new NBATreeView(context);
 	// 初始化命令
 	new IndexCommands(context);
-	console.log(context);
-	console.log(vscode.window);
 }
 
 // 插件销毁
