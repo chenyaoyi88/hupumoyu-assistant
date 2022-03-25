@@ -13,12 +13,12 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
     private _extensionUri: vscode.Uri;
 
     private _context: vscode.ExtensionContext;
-    // 热门板块
-    private hotMoule = [];
     // 分类板块
     private categoriesModule = [];
     // 当前选择的板块内容
     private currentSelectedModuleData: any = {};
+    // 最近看过的板块，最多只保留20个
+    private static maxLastviewedLength: number = 20;
 
     constructor(
         context: vscode.ExtensionContext
@@ -64,8 +64,8 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         const bxjSwitchCommand = vscode.commands.registerCommand(
             'bxjTreeView.switch',
             async () => {
-                if (this.hotMoule.length && this.categoriesModule.length) {
-                    this.moduleChange(context, this.hotMoule, this.categoriesModule);
+                if (this.categoriesModule.length) {
+                    this.moduleChange(context, this.categoriesModule);
                 } else {
                     vscode.window.showInformationMessage('获取论坛板块数据失败');
                 }
@@ -94,7 +94,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
     // 获取当前板块帖子
     async currentModulePost(context: vscode.ExtensionContext) {
         let aQuickPick = [];
-        let currentModule = { label: '', value: '', pageNo: 0 };
+        let currentModule: PostModule = { label: '', value: '', pageNo: 0 };
         if (this.currentSelectedModuleData?.list?.length) {
             aQuickPick = this.currentSelectedModuleData.list;
             currentModule = this.currentSelectedModuleData.currentModule;
@@ -196,8 +196,8 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         if (hot.length) {
             const hotTemp = this.quickPickDataFormat(hot);
             hotTemp.unshift({
-                label: '其他分类',
-                value: 'other-categories',
+                label: '全部分类',
+                value: 'all-categories',
                 description: '找不到想看的板块可以在这里面找',
             });
             res.hot = hotTemp;
@@ -242,31 +242,35 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
     /**
      * 切换板块
      * @param context 
-     * @param hotMoule 热门板块
      * @param categoriesModule 分类板块
      */
     async moduleChange(
         context: vscode.ExtensionContext,
-        hotMoule: Array<any>,
-        categoriesModule: Array<any>
+        categoriesModule: Array<PostModule>
     ) {
-        if (hotMoule) {
-            const target = await vscode.window.showQuickPick(
-                hotMoule,
+        const lastviewedList: Array<PostModule> = this.getLastViewedModule();
+        const target = await vscode.window.showQuickPick(
+            [
                 {
-                    title: '请选择要切换的板块',
-                    placeHolder: '请选择要切换的板块'
+                    label: '全部分类',
+                    value: 'all-categories',
+                    detail: `下面显示的是最近看过的 ${BxjViewProvider.maxLastviewedLength} 板块`,
                 },
-            );
+                ...lastviewedList,
+            ],
+            {
+                title: '请选择要切换的板块',
+                placeHolder: '请选择要切换的板块'
+            },
+        );
 
-            if (target) {
-                if (target.value === 'other-categories') {
-                    // 选择其他板块
-                    this.multStepInput(context, categoriesModule);
-                } else {
-                    // 选择当前板块
-                    this.getModuleData(context, target);
-                }
+        if (target) {
+            if (target.value === 'all-categories') {
+                // 选择其他板块
+                this.multStepInput(context, categoriesModule);
+            } else {
+                // 选择当前板块
+                this.getModuleData(context, target);
             }
         }
     }
@@ -276,7 +280,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
      * @param context 
      * @param categoriesModule 分类板块
      */
-    async multStepInput(context: vscode.ExtensionContext, categoriesModule: Array<any>) {
+    async multStepInput(context: vscode.ExtensionContext, categoriesModule: Array<PostModule>) {
         const pick = await vscode.window.createQuickPick();
         pick.title = '请选择你想看的板块';
         pick.step = 1;
@@ -298,7 +302,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
             } else if (pick.step === 2) {
                 if (aItem[0]) {
                     pick.hide();
-                    const currentModule = {
+                    const currentModule: PostModule = {
                         label: aItem[0].label,
                         value: aItem[0].value,
                         pageNo: 0,
@@ -323,7 +327,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
      * @param context 
      * @returns 
      */
-    getCurrentModule(context: vscode.ExtensionContext): { label: string, value: string, pageNo: number } {
+    getCurrentModule(context: vscode.ExtensionContext): PostModule {
         return context.globalState.get('bxj-current-module') || {
             label: '步行街主干道',
             value: 'bxj',
@@ -333,7 +337,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
 
     // 刷新
     refresh(context: vscode.ExtensionContext) {
-        const currentModule: { label: string, value: string, pageNo: number } = this.getCurrentModule(context);
+        const currentModule: PostModule = this.getCurrentModule(context);
         currentModule.pageNo = 0;
         this.getModuleData(context, currentModule);
     }
@@ -349,7 +353,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         context: vscode.ExtensionContext,
         pageCtrl?: boolean
     ) {
-        const currentModule: { label: string, value: string, pageNo: number } = this.getCurrentModule(context);
+        const currentModule: PostModule = this.getCurrentModule(context);
         if (!Object.keys(currentSelectedModuleData).length) {
             vscode.window.showInformationMessage('未选中任何板块');
             return;
@@ -377,19 +381,61 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         }
     }
 
+    // 设置最近查看过的板块
+    setLastViewedMoudule(currentModule: PostModule) {
+        if (currentModule?.label && currentModule?.value) {
+            const lastviewedList: Array<PostModule> = this._context.globalState.get('bxj-lastviewed-module') || [];
+            if (lastviewedList?.length) {
+                // 有缓存数据
+                let index = -1;
+                for (let i = 0; i < lastviewedList.length; i++) {
+                    if (lastviewedList[i].value === currentModule.value) {
+                        index = i;
+                        break;
+                    }
+                }
+                if (index === -1) {
+                    // 没找到，在数组前面插入
+                    delete currentModule.description;
+                    lastviewedList.unshift(currentModule);
+                } else {
+                    // 找到了，放在最前面
+                    const insertModule: PostModule = lastviewedList.splice(index, 1)[0];
+                    delete insertModule?.description;
+                    lastviewedList.unshift(insertModule);
+                }
+                // 最多保存 20 个
+                if (lastviewedList.length > BxjViewProvider.maxLastviewedLength) {
+                    lastviewedList.length = BxjViewProvider.maxLastviewedLength;
+                }
+                this._context.globalState.update('bxj-lastviewed-module', lastviewedList);
+            } else {
+                // 没有缓存数据，直接添加
+                this._context.globalState.update('bxj-lastviewed-module', [currentModule]);
+            }
+        }
+    }
+
+    // 获取最近查看过的板块
+    getLastViewedModule(): Array<PostModule> {
+        return this._context.globalState.get('bxj-lastviewed-module') || [];
+    }
+
     /**
      * 获取当前板块数据
      * @param context 
      */
     async getCurrentModuleData(context: vscode.ExtensionContext) {
-        const currentModule: { label: string, value: string } = this.getCurrentModule(context);
+        const currentModule: PostModule = this.getCurrentModule(context);
         const currentSelectedModuleData = await this.getModuleData(context, currentModule);
         return currentSelectedModuleData;
     }
 
-    async getModuleData(context: vscode.ExtensionContext, currentModule: any) {
+    async getModuleData(context: vscode.ExtensionContext, currentModule: PostModule) {
         // 本地缓存更新当前选择的板块
         context.globalState.update('bxj-current-module', currentModule);
+        // 加入到最近看过的板块
+        this.setLastViewedMoudule(currentModule);
         this._view?.webview.postMessage({
             command: 'showLoading',
         });
@@ -408,8 +454,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
             // 处理一下数据格式
             if (resBxjModule.topic || resBxjModule.pageData) {
                 const resFormatData = this.setAllModule(resBxjModule);
-                // 保存起来别的地方用，热门板块 和 分类板块
-                this.hotMoule = resFormatData.hot;
+                // 保存起来别的地方用，分类板块
                 this.categoriesModule = resFormatData.categories;
             }
             let dataList = [];
@@ -517,8 +562,12 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
 				<title>虎扑摸鱼</title>
 			</head>
 			<body id="hupumoyu-bxj">
-                <div data-id="hupumoyu-module-title" class="hupumoyu-module-title"></div>
-                <ul id="hupumoyu-module-list" class="hupumoyu-module-list"></ul>
+                <div data-id="hupumoyu-module-title-box" class="hupumoyu-module-title">
+                    <span data-id="hupumoyu-module-title"></span>
+                </div>
+                <div id="hupumoyu-module-list-box" class="hupumoyu-module-list-box hupumoyu-module-list-box_delayed">
+                    <ul id="hupumoyu-module-list" class="hupumoyu-module-list"></ul>
+                </div>
                 <div id="hupumoyu-module-page" class="hupumoyu-module-page"></div>
 
                 <script src="${scriptCommonUri}"></script>
@@ -526,4 +575,16 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
 			</body>
 			</html>`;
     }
+}
+
+// 论坛板块
+interface PostModule {
+    // 板块名称
+    label: string;
+    // 板块地址
+    value: string;
+    // 页码
+    pageNo?: number;
+    // 描述，例如多少热度
+    description?: string;
 }

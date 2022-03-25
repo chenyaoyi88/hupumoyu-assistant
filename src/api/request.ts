@@ -1,12 +1,11 @@
 import * as request from 'request';
-import * as vscode from 'vscode';
+import { _context } from '../extension';
 
 export default function req(url: string, options?: { resJson?: Boolean, tipsName?: string }) {
     return new Promise((resolve, reject) => {
         if (options?.tipsName) {
-            if (vscode.ExtensionMode.Development === 2) {
-                console.log(options.tipsName, '开始请求');
-                console.log('请求地址', url);
+            if (_context?.extensionMode === 2) {
+                console.log(options.tipsName, '开始请求', url);
             }
         }
         request(url, {
@@ -17,18 +16,18 @@ export default function req(url: string, options?: { resJson?: Boolean, tipsName
                 let resData = {};
                 if (options?.resJson === undefined || options?.resJson) {
                     resData = JSON.parse(body);
-                    if (vscode.ExtensionMode.Development === 2) {
+                    if (_context?.extensionMode === 2) {
                         console.log(options?.tipsName, '接口响应', resData);
                     }
                 } else {
                     resData = body;
-                    if (vscode.ExtensionMode.Development === 2) {
+                    if (_context?.extensionMode === 2) {
                         console.log(options?.tipsName, '接口响应');
                     }
                 }
                 resolve(resData);
             } else {
-                if (vscode.ExtensionMode.Development === 2) {
+                if (_context?.extensionMode === 2) {
                     console.log(options?.tipsName, '请求错误', err);
                 }
                 reject(err);

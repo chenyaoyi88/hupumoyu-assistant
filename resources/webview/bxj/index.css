@@ -12,19 +12,26 @@ body {
 	cursor: pointer;
 }
 
-.hupumoyu-module-list {
+.hupumoyu-module-list-box {
+	margin: 0 -20px 0 0;
 	padding: 0;
-	margin: 0;
-	overflow: hidden;
+	overflow: auto;
+	visibility: hidden;
 }
 
-.hupumoyu-module-list:hover {
-	margin-right: -20px;
-	padding-right: 10px;
-	overflow-y: auto;
+.hupumoyu-module-list-box .hupumoyu-module-list {
+	margin: 0 10px 0 0;
+	padding: 0;
+	visibility: visible;
 }
 
-.hupumoyu-module-list .hupumoyu-module-item {
+.hupumoyu-module-list,
+.hupumoyu-module-list-box:hover,
+.hupumoyu-module-list-box:focus {
+  visibility: visible;
+}
+
+.hupumoyu-module-list-box .hupumoyu-module-list .hupumoyu-module-item {
 	margin-bottom: 5px;
 	cursor: pointer;
 }

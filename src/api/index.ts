@@ -1,6 +1,6 @@
 import req from './request';
 import * as cheerio from 'cheerio';
-import * as vscode from 'vscode';
+import { _context } from '../extension';
 
 interface LiveOptions {
     matchId: string,
@@ -92,7 +92,7 @@ export const hupuPostDetail = async (posturl: string) => {
             tid: posturl.match(/\d+/)?.[0],
         };
 
-        if (vscode.ExtensionMode.Development === 2) {
+        if (_context?.extensionMode === 2) {
             console.log('6-帖子详情', res);
         }
         return res;
@@ -137,7 +137,7 @@ export const hupuBxjModule = async (postPageName: string) => {
         const res1 = resStart.substring(0, endIndex);
         const res = JSON.parse(res1);
 
-        if (vscode.ExtensionMode.Development === 2) {
+        if (_context?.extensionMode === 2) {
             console.log('8-论坛版块', res);
         }
         return res;
@@ -159,7 +159,7 @@ export const hupuBoxscore = async (gdcId: string) => {
             content: $('.gamecenter_content_l').html() || '',
         };
 
-        if (vscode.ExtensionMode.Development === 2) {
+        if (_context?.extensionMode === 2) {
             console.log('9-比赛数据', res);
         }
         return res;
@@ -193,7 +193,7 @@ export const hupuStandings = async () => {
             content: $('.rank_data').html() || '',
         };
 
-        if (vscode.ExtensionMode.Development === 2) {
+        if (_context?.extensionMode === 2) {
             console.log('11-排名', res);
         }
         return res;
@@ -215,7 +215,7 @@ export const hupuStats = async (type: string) => {
             content: $('#data_js').html() || '',
         };
 
-        if (vscode.ExtensionMode.Development === 2) {
+        if (_context?.extensionMode === 2) {
             console.log('12-数据排行', res);
         }
         return res;

@@ -1,5 +1,3 @@
-// This script will be run within the webview itself
-// It cannot access the main VS Code APIs directly.
 (function () {
     const vscode = acquireVsCodeApi();
     const oldState = (vscode.getState());
@@ -76,10 +74,10 @@
     }, false);
 
     function setModuleListHeight() {
-        const oModuleTitle = document.querySelector('[data-id="hupumoyu-module-title"]');
-        const oModuleList = document.querySelector('#hupumoyu-module-list');
+        const oModuleTitleBox = document.querySelector('[data-id="hupumoyu-module-title-box"]');
+        const oModuleListBox = document.querySelector('#hupumoyu-module-list-box');
         const oModulePage = document.querySelector('#hupumoyu-module-page');
-        oModuleList.style.height = window.innerHeight - oModuleTitle.offsetHeight - oModulePage.offsetHeight + 'px';
+        oModuleListBox.style.height = window.innerHeight - oModuleTitleBox.offsetHeight - oModulePage.offsetHeight + 'px';
     }
 
     function updatePostList(data) {
@@ -87,7 +85,9 @@
             vscode.setState({
                 data,
             });
-            const oModuleList = document.querySelector('#hupumoyu-module-list');
+
+            const oModuleListBox = document.querySelector('#hupumoyu-module-list-box');
+            const oModuleList = oModuleListBox.querySelector('#hupumoyu-module-list');
 
             if (data.currentModule && data.currentModule.label) {
                 document.querySelector('[data-id="hupumoyu-module-title"]').innerHTML = `${data.currentModule.label}${data.currentModule.pageNo ? `（P${data.currentModule.pageNo}）` : ''}`;
@@ -110,7 +110,7 @@
                 oModuleList.innerHTML = str;
 
                 // 回到顶部
-                oModuleList.scrollTop = 0;
+                oModuleListBox.scrollTop = 0;
             }
 
             setModuleListHeight();

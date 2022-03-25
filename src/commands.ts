@@ -5,7 +5,12 @@ import {
     QuickInputButtons,
 } from 'vscode';
 
+import NBATreeView from './treeView/nba';
+import BxjTreeView from './webview/bxj';
 import LiveStudioWebView from './webview/liveStudio';
+import PostDetailWebView from './webview/postDetail';
+import BoxscoreWebView from './webview/boxscore';
+import StandingsWebView from './webview/standings';
 
 import {
     hupuQueryLiveActivityKey,
@@ -121,9 +126,26 @@ export default class IndexCommands {
             }
         });
         context.subscriptions.push(currentDayMatchList);
+
+        // 快速切换回工作模式
+        const bossComing = commands.registerCommand('hupumoyu.bossComing', (e: { extensionId: string }) => {
+            // 关闭数据统计
+            BoxscoreWebView.forceCloseWebview();
+            // 关闭直播间
+            LiveStudioWebView.forceCloseWebview();
+            // 关闭步行街打开的帖子
+            PostDetailWebView.forceCloseWebview();
+            // 关闭数据排行
+            StandingsWebView.forceCloseWebview();
+            // 如果左侧的板块的可见的，则切换到资源管理器界面
+            if (NBATreeView?._treeView?.visible || BxjTreeView?._webView?.visible) {
+                commands.executeCommand('workbench.view.explorer');
+            }
+        });
+        context.subscriptions.push(bossComing);
     }
 
-    async getLiveStudioData (context: ExtensionContext, item: any) {
+    async getLiveStudioData(context: ExtensionContext, item: any) {
         if (item.matchStatus === 'COMPLETED') {
             window.showInformationMessage('比赛已结束');
         } else {
