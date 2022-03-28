@@ -19,3 +19,7 @@ fix2：所有 webview 打开逻辑进行调整，例如当前已经打开了一�
 如下图：
 
 ![fix1](https://vscode-hupumoyu-assistant.surge.sh/changelog/1.0.2/fix2.gif)
+
+## [1.0.3]
+
+feat：切换板块中去掉热门板块，改为显示最近浏览过的板块
