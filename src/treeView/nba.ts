@@ -92,7 +92,7 @@ export default class NBATreeView {
                         if (res && res.result && res.result.gameList) {
                             tree = formatScheduleListData(context, res);
                         } else {
-                            vscode.window.showErrorMessage('请求响应失败，重新发起请求');
+                            vscode.window.setStatusBarMessage('请求响应失败，重新发起请求', 5000);
                             this._onDidChangeTreeData.fire(null);
                             return;
                         }
