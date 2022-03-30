@@ -33,9 +33,9 @@
         vscode.setState({
             data,
         });
-        const oBoxscore = /** @type {HTMLElement} */ (document.getElementById('hupumoyu-boxscore-box'));
+        const oBoxscore = /** @type {HTMLElement} */ (document.getElementById('hupumoyu-content-box'));
         oBoxscore.innerHTML = data.content;
-        showPostImgs(document.querySelectorAll('#hupumoyu-boxscore-box img'));
+        showPostImgs(document.querySelectorAll('#hupumoyu-content-box img'));
     }
 
     function showPostImgs(aImgs) {

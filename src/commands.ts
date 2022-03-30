@@ -9,8 +9,7 @@ import NBATreeView from './treeView/nba';
 import BxjTreeView from './webview/bxj';
 import LiveStudioWebView from './webview/liveStudio';
 import PostDetailWebView from './webview/postDetail';
-import BoxscoreWebView from './webview/boxscore';
-import StandingsWebView from './webview/standings';
+import CommonWebView from './webview/common';
 
 import {
     hupuQueryLiveActivityKey,
@@ -129,20 +128,32 @@ export default class IndexCommands {
 
         // 快速切换回工作模式
         const bossComing = commands.registerCommand('hupumoyu.bossComing', (e: { extensionId: string }) => {
-            // 关闭数据统计
-            BoxscoreWebView.forceCloseWebview();
             // 关闭直播间
             LiveStudioWebView.forceCloseWebview();
             // 关闭步行街打开的帖子
             PostDetailWebView.forceCloseWebview();
-            // 关闭数据排行
-            StandingsWebView.forceCloseWebview();
+
+            for (let webview in IndexCommands.webviewObject) {
+                if (IndexCommands.webviewObject[webview]) {
+                    IndexCommands.webviewObject[webview].dispose();
+                }
+            }
+
             // 如果左侧的板块的可见的，则切换到资源管理器界面
             if (NBATreeView?._treeView?.visible || BxjTreeView?._webView?.visible) {
                 commands.executeCommand('workbench.view.explorer');
             }
         });
         context.subscriptions.push(bossComing);
+    }
+
+    static webviewObject: any = {
+        boxscore: null,
+        standing: null,
+    };
+
+    static receiveWebviewMessage(webviewName: string, webviewInstance: any) {
+        IndexCommands.webviewObject[webviewName] = webviewInstance;
     }
 
     async getLiveStudioData(context: ExtensionContext, item: any) {

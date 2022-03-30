@@ -4,12 +4,29 @@ import {
     hupuScheduleList,
     hupuStandings,
     hupuStats,
+    hupuBoxscore,
 } from '../api/index';
-import BoxscoreWebView from '../webview/boxscore';
-import LiveStudioWebView from '../webview/liveStudio';
-import StandingsWebView from '../webview/standings';
 
+import LiveStudioWebView from '../webview/liveStudio';
+import CommonWebView from '../webview/common';
+import IndexCommands from '../commands';
+
+interface BoxscoreWebView {
+    webview: CommonWebView | null;
+    timer: ReturnType<typeof setTimeout> | any;
+    duration: number;
+}
 export default class NBATreeView {
+
+    // 比赛数据
+    boxscore: BoxscoreWebView = {
+        webview: null,
+        timer: 0,
+        duration: 10000,
+    };
+
+    // 战绩/数据排名
+    standingWebview: CommonWebView | null = null;
 
     _onDidChangeTreeData: vscode.EventEmitter<any> = new vscode.EventEmitter();
     // 刷新控制器
@@ -53,22 +70,90 @@ export default class NBATreeView {
         );
 
         if (target) {
-            switch (target.value) {
-                case 'standings':
-                    StandingsWebView.createOrShow(context, {
-                        title: target.label,
-                        api: hupuStandings,
-                    });
-                    break;
-                case 'players':
-                    StandingsWebView.createOrShow(context, {
-                        title: target.label,
-                        api: hupuStats,
-                        statsUrl: '/stats/players',
-                    });
-                    break;
-                default:
+            this.standingWebview?.createOrShow(
+                context,
+                'standings',
+                {
+                    title: target.label,
+                },
+                (isReload: boolean) => {
+                    let data = {};
+                    if (target.value === 'players') {
+                        data = {
+                            statsUrl: '/stats/players',
+                        };
+                    }
+                    this.getStandingData(data, isReload);
+                },
+                (message: any) => {
+                    switch (message.command) {
+                        case 'statsUrl':
+                            this.getStandingData({
+                                statsUrl: message.data,
+                            }, true);
+                            break;
+                        default:
+                    }
+                },
+            );
+        }
+    }
+
+    /**
+     * 获取战绩/数据排名数据
+     * @param data 请求参数
+     * @param isReload 是否显示loading
+     */
+    async getStandingData(data: { statsUrl?: string }, isReload?: boolean) {
+        // 延时打开，不然还打不开
+        setTimeout(async () => {
+            if (this.standingWebview?._panel) {
+                let requestApi: Function = data.statsUrl ? hupuStats : hupuStandings;
+                if (isReload) {
+                    this.standingWebview.showLoading();
+                }
+                const res = await requestApi(data.statsUrl);
+                this.standingWebview.hideLoading();
+                // 发送消息到 webview 执行
+                this.standingWebview?._panel.webview.postMessage({
+                    command: 'updateStandings',
+                    data: res,
+                });
             }
+        }, 100);
+    }
+
+    /**
+     * 获取当场比赛数据
+     * @param data 请求参数
+     * @param isReload 是否显示loading
+     */
+    async getBoxscoreData(data: any, isReload?: boolean) {
+        this.refreshBoxscoreData(data);
+        if (isReload) {
+            this.boxscore.webview?.showLoading();
+        }
+        const res = await hupuBoxscore(data.gdcId);
+        this.boxscore.webview?.hideLoading();
+        // 发送消息到 webview 执行
+        this.boxscore.webview?._panel?.webview?.postMessage({
+            command: 'updateBoxscore',
+            data: res,
+        });
+    }
+
+    /**
+     * 刷新当场比赛数据
+     * @param data 请求参数
+     */
+    refreshBoxscoreData(data: any) {
+        if (this.boxscore.webview?._panel) {
+            clearTimeout(this.boxscore.timer);
+            this.boxscore.timer = setTimeout(() => {
+                if (this.boxscore.webview?._panel) {
+                    this.getBoxscoreData(data);
+                }
+            }, this.boxscore.duration);
         }
     }
 
@@ -122,12 +207,25 @@ export default class NBATreeView {
             },
         );
 
+        this.boxscore.webview = new CommonWebView();
+
+        IndexCommands.receiveWebviewMessage('boxscore', this.boxscore.webview);
+
         // 点击当场赛事数据
         const clickScoreboxCommand = vscode.commands.registerCommand(
             'nbaTreeView.dataDetail', (e) => {
                 const data = e.command.arguments[0];
                 data.title = `${data.awayTeamName} ${data.awayScore || '-'} : ${data.homeScore || '-'} ${data.homeTeamName}`;
-                BoxscoreWebView.createOrShow(context, data);
+
+                this.boxscore.webview?.createOrShow(
+                    context,
+                    'boxscore',
+                    data,
+                    (isReload: boolean) => {
+                        this.getBoxscoreData(data, isReload);
+                    }
+                );
+
             },
         );
 
@@ -145,6 +243,10 @@ export default class NBATreeView {
                 }
             },
         );
+
+        this.standingWebview = new CommonWebView();
+
+        IndexCommands.receiveWebviewMessage('standing', this.standingWebview);
 
         // 点击排名
         const clickRankCommand = vscode.commands.registerCommand(
