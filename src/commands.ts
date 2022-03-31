@@ -9,7 +9,6 @@ import NBATreeView from './treeView/nba';
 import BxjTreeView from './webview/bxj';
 import LiveStudioWebView from './webview/liveStudio';
 import PostDetailWebView from './webview/postDetail';
-import CommonWebView from './webview/common';
 
 import {
     hupuQueryLiveActivityKey,

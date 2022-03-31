@@ -129,11 +129,6 @@
 				"command": "bxjTreeView.currentModulePost",
 				"title": "当前板块帖子",
 				"category": "虎扑摸鱼-步行街"
-			},
-			{
-				"command": "hupumoyu.stockAndFund",
-				"title": "股票基金",
-				"category": "虎扑摸鱼-股票基金"
 			}
 		],
 		"keybindings": [
