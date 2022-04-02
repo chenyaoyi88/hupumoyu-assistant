@@ -259,6 +259,11 @@
             oPaginationHide.innerHTML = '';
         }
 
+        // 没有内容
+        if (data.noContent) {
+            oThreadContentDetail.innerHTML = data.noContent || '';
+        }
+
         const oContent = document.querySelector('#hupumoyu-content-box');
         // 用来隐藏页面未渲染完成时页面凌乱的状态
         oContent.classList.remove('hide');

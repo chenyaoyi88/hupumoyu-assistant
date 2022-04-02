@@ -1,4 +1,5 @@
 function showLoading() {
+    hideLoading();
     document.body.insertAdjacentHTML('beforeend', `
     <div id="hupumoyu-loading" class="hupumoyu-loading">加载中...</div>`);
 }

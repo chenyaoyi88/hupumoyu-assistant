@@ -18,6 +18,7 @@ import {
 } from './api/index';
 
 import { findDiffList, addData } from './utils/index';
+import CommonWebView from './webview/common';
 
 export default class IndexCommands {
 
@@ -144,12 +145,47 @@ export default class IndexCommands {
             }
         });
         context.subscriptions.push(bossComing);
+
+        const stockFund = commands.registerCommand('hupumoyu.selectWebview', async (e: any) => {
+            const target = await window.showQuickPick(
+                [
+                    { label: '股票基金', value: 'stockFund' },
+                ],
+                {
+                    title: '请选择要打开的板块',
+                    placeHolder: '请选择要打开的板块'
+                }
+            );
+
+            if (target) {
+                if (!this.webviewTarget[target.value]) {
+                    this.webviewTarget[target.value] = new CommonWebView();
+                }
+                this.webviewTarget[target.value].createOrShow(
+                    context,
+                    target.value,
+                    { title: target.label },
+                    (isReload: boolean) => {
+                        switch (target.value) {
+                            case 'stockFund':
+                                this.getStockFundData();
+                                break;
+                            default:
+                        }
+                    }
+                );
+                IndexCommands.receiveWebviewMessage(target.value, this.webviewTarget[target.value]);
+            }
+        });
+        context.subscriptions.push(stockFund);
     }
 
-    static webviewObject: any = {
-        boxscore: null,
-        standing: null,
-    };
+    getStockFundData() {
+        console.log('getStockFundData');
+    }
+
+    webviewTarget: any = {};
+    static webviewObject: any = {};
 
     static receiveWebviewMessage(webviewName: string, webviewInstance: any) {
         IndexCommands.webviewObject[webviewName] = webviewInstance;

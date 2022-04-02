@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { hupuBxjModule } from '../api';
 import PostDetailWebView from './postDetail';
 
+let myStatusBarItem: vscode.StatusBarItem;
 export default class BxjViewProvider implements vscode.WebviewViewProvider {
 
     public static readonly viewType = 'bxjTreeView';
@@ -19,6 +20,8 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
     private currentSelectedModuleData: any = {};
     // 最近看过的板块，最多只保留20个
     private static maxLastviewedLength: number = 20;
+
+    statusBarPostIndex: number = -1;
 
     constructor(
         context: vscode.ExtensionContext
@@ -40,28 +43,28 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
      * @param context 
      */
     setClickCommands(context: vscode.ExtensionContext) {
-        const bxjRefreshCommand = vscode.commands.registerCommand(
+        const bxjRefresh = vscode.commands.registerCommand(
             'bxjTreeView.refresh',
             async () => {
                 this.refresh(context);
             },
         );
 
-        const bxjPrePageCommand = vscode.commands.registerCommand(
+        const bxjPrePage = vscode.commands.registerCommand(
             'bxjTreeView.prevPage',
             async () => {
                 this.pageChange(this.currentSelectedModuleData, context, false);
             },
         );
 
-        const bxjNextPageCommand = vscode.commands.registerCommand(
+        const bxjNextPage = vscode.commands.registerCommand(
             'bxjTreeView.nextPage',
             async () => {
                 this.pageChange(this.currentSelectedModuleData, context, true);
             },
         );
 
-        const bxjSwitchCommand = vscode.commands.registerCommand(
+        const bxjSwitch = vscode.commands.registerCommand(
             'bxjTreeView.switch',
             async () => {
                 if (this.categoriesModule.length) {
@@ -72,23 +75,63 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
             },
         );
 
-        const bxjSettingsCommand = vscode.commands.registerCommand(
+        const bxjSettings = vscode.commands.registerCommand(
             'bxjTreeView.settings',
             async () => {
                 this.setSettings(context);
             },
         );
 
-        const bxjCurrentModulePostCommand = vscode.commands.registerCommand('bxjTreeView.currentModulePost', async () => {
+        const bxjCurrentModulePost = vscode.commands.registerCommand('bxjTreeView.currentModulePost', async () => {
             this.currentModulePost(context);
         });
 
-        context.subscriptions.push(bxjRefreshCommand);
-        context.subscriptions.push(bxjPrePageCommand);
-        context.subscriptions.push(bxjNextPageCommand);
-        context.subscriptions.push(bxjSwitchCommand);
-        context.subscriptions.push(bxjSettingsCommand);
-        context.subscriptions.push(bxjCurrentModulePostCommand);
+        const bxjStatusBarNextPost = vscode.commands.registerCommand('bxjTreeView.statusBarNext', async () => {
+            if (this.currentSelectedModuleData?.list?.length) {
+                const postList = this.currentSelectedModuleData.list;
+                this.statusBarPostIndex++;
+                if (this.statusBarPostIndex > postList.length) {
+                    this.statusBarPostIndex = 0;
+                }
+                this.showStatusBarPost(context);
+            }
+        });
+
+        const bxjStatusBarPrevPost = vscode.commands.registerCommand('bxjTreeView.statusBarPrev', async () => {
+            if (this.currentSelectedModuleData?.list?.length) {
+                const postList = this.currentSelectedModuleData.list;
+                this.statusBarPostIndex--;
+                if (this.statusBarPostIndex < 0) {
+                    this.statusBarPostIndex = postList.length - 1;
+                }
+                this.showStatusBarPost(context);
+            }
+        });
+
+        context.subscriptions.push(bxjRefresh);
+        context.subscriptions.push(bxjPrePage);
+        context.subscriptions.push(bxjNextPage);
+        context.subscriptions.push(bxjSwitch);
+        context.subscriptions.push(bxjSettings);
+        context.subscriptions.push(bxjCurrentModulePost);
+        context.subscriptions.push(bxjStatusBarNextPost);
+        context.subscriptions.push(bxjStatusBarPrevPost);
+    }
+
+    showStatusBarPost(context: vscode.ExtensionContext) {
+        const postItem = this.currentSelectedModuleData.list[this.statusBarPostIndex];
+        if (postItem) {
+            postItem.text = `${postItem.title} 【阅:${postItem.read}/${postItem.lights ? `高亮:${postItem.lights}` : ''}/${postItem.replies ? `回复:${postItem.replies}` : ''}】`;
+            if (myStatusBarItem) {
+                myStatusBarItem.text = postItem.text;
+            } else {
+                myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+                myStatusBarItem.command = 'bxjTreeView.statusBarPostClick';
+                context.subscriptions.push(myStatusBarItem);
+                myStatusBarItem.text = postItem.text;
+            }
+            myStatusBarItem.show();
+        }
     }
 
     // 获取当前板块帖子
@@ -127,6 +170,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         }
     }
 
+    // 步行街设置
     async setSettings(context: vscode.ExtensionContext) {
         if (context.globalState.get('bxj-settings-showPostImgs') === undefined) {
             context.globalState.update('bxj-settings-showPostImgs', true);
@@ -443,6 +487,8 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         try {
             const value = currentModule.pageNo ? `${currentModule.value}-${currentModule.pageNo}` : currentModule.value;
 
+            vscode.window.setStatusBarMessage('请求获取论坛板块', 3000);
+
             resBxjModule = await hupuBxjModule(value);
 
             vscode.window.setStatusBarMessage('获取论坛板块成功', 3000);
@@ -562,6 +608,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
 				<title>虎扑摸鱼</title>
 			</head>
 			<body id="hupumoyu-bxj">
+
                 <div data-id="hupumoyu-module-title-box" class="hupumoyu-module-title">
                     <span data-id="hupumoyu-module-title"></span>
                 </div>

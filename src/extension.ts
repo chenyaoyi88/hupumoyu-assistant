@@ -8,7 +8,7 @@ export let _context: vscode.ExtensionContext;
 // 插件激活
 export function activate(context: vscode.ExtensionContext) {
 	_context = context;
-	vscode.window.setStatusBarMessage('虎扑摸鱼助手已激活', 5000);
+	vscode.window.setStatusBarMessage('虎扑摸鱼助手已激活', 3000);
 	// 初始化步行街
 	new BxjTreeView(context);
 	// 初始化赛事日程
@@ -19,5 +19,5 @@ export function activate(context: vscode.ExtensionContext) {
 
 // 插件销毁
 export function deactivate() {
-	vscode.window.setStatusBarMessage('虎扑摸鱼助手已销毁', 5000);
+	vscode.window.setStatusBarMessage('虎扑摸鱼助手已销毁', 3000);
 }

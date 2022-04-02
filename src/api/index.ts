@@ -89,6 +89,7 @@ export const hupuPostDetail = async (posturl: string) => {
             postLightReplyContent: $('.bbs-post-wrapper.light .bbs-post-wrapper-content').html(),
             postGrayReplyContent: $('.bbs-post-wrapper.gray .bbs-post-wrapper-content').html(),
             pagination: $('.pagination.bottom .hupu-rc-pagination').html(),
+            noContent: $('.none-content').html(),
             tid: posturl.match(/\d+/)?.[0],
         };
 
