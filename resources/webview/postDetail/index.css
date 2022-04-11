@@ -187,4 +187,5 @@
 
 .hupumoyu-pagination .hupumoyu-pagination-item {
     flex: 1;
+    outline: none;
 }

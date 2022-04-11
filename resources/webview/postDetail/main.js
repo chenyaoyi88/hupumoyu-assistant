@@ -117,13 +117,13 @@
 
     function rerenderPagination() {
         const aPageEle = document.querySelectorAll('.hupumoyu-pagination-hide .hupu-rc-pagination-item');
+        const oContent = /** @type {HTMLElement} */ document.getElementById('hupumoyu-content-box');
+        const oPagination = /** @type {HTMLElement} */ document.querySelector('#hupumoyu-pagination');
         if (aPageEle && aPageEle.length) {
             const oLastPage = aPageEle[aPageEle.length - 1];
             if (oLastPage) {
                 const value = oLastPage.querySelector('.block-c').getAttribute('href');
                 const lastPageNo = Number(value.split('.')[0].split('-')[1]);
-
-                const oPagination = /** @type {HTMLElement} */ document.querySelector('#hupumoyu-pagination');
 
                 const currentState = (vscode.getState());
                 let currentPageNo = Number(currentState.data.pageNo);
@@ -136,14 +136,13 @@
                 <span href="javascript;" class="hupumoyu-pagination-item">${currentState.data.pageNo}/${lastPageNo}</span>
                 `;
 
-                const oContent = /** @type {HTMLElement} */ document.getElementById('hupumoyu-content-box');
-
                 oContent.style.height = window.innerHeight - oPagination.offsetHeight - 15 + 'px';
                 oContent.scrollTo(0, 0);
 
                 const aPageItem = /** @type {HTMLElement} */ oPagination.querySelectorAll('.hupumoyu-pagination-item');
 
                 const pagechange = (pageNo) => {
+                    showLoading();
                     vscode.postMessage({
                         command: 'pagechange',
                         content: {
@@ -182,8 +181,10 @@
                 }
             }
         } else {
-            const oPagination = /** @type {HTMLElement} */ document.querySelector('#hupumoyu-pagination');
             oPagination.innerHTML = '';
+
+            oContent.style.height = 'auto';
+            oContent.scrollTo(0, 0);
         }
     }
 
@@ -277,6 +278,6 @@
     }
 
     window.addEventListener('resize', () => {
-        console.log(123);
+        rerenderPagination();
     });
 }());
