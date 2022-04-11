@@ -31,7 +31,7 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "hupumoyu-assistant.helloWorld",
+				"command": "hupumoyu-assistant.start",
 				"title": "虎扑摸鱼助手",
 				"category": "虎扑摸鱼助手-启动"
 			},
@@ -133,11 +133,6 @@
 		],
 		"keybindings": [
 			{
-				"command": "hupumoyu.bossComing",
-				"key": "escape",
-				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView' || nbaTreeView.active == true || bxjTreeView.active == true"
-			},
-			{
 				"command": "bxjTreeView.statusBarNext",
 				"key": "ctrl+alt+pageUp",
 				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView' || nbaTreeView.active == true || bxjTreeView.active == true"
@@ -179,13 +174,13 @@
 			"editor/context": [
 				{
 					"when": "editorFocus",
-					"command": "hupumoyu-assistant.helloWorld",
+					"command": "hupumoyu-assistant.start",
 					"group": "group"
 				}
 			],
 			"explorer/context": [
 				{
-					"command": "hupumoyu-assistant.helloWorld",
+					"command": "hupumoyu-assistant.start",
 					"group": "group"
 				}
 			],
@@ -263,7 +258,7 @@
 		"cheerio": "^1.0.0-rc.10",
 		"request": "^2.88.2"
 	},
-	"repository":{
+	"repository": {
 		"type": "git",
 		"url": "https://github.com/chenyaoyi88/hupumoyu-assistant"
 	}

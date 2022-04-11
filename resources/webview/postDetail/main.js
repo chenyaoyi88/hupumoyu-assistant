@@ -275,4 +275,8 @@
         showPostImgAndVideo(document.querySelectorAll('#hupumoyu-postDetail img,video'));
         rerenderPagination();
     }
+
+    window.addEventListener('resize', () => {
+        console.log(123);
+    });
 }());

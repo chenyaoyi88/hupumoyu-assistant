@@ -20,7 +20,7 @@
 
 ![功能预览](https://vscode-hupumoyu-assistant.surge.sh/2.gif)
 
-在插件页面按 Esc 键即可退回正常工作模式
+Ctrl + Shift + P 或者 F1 输入工作模式，可以快速关掉所有摸鱼窗口，切换回工作模式
 
 ![功能预览](https://vscode-hupumoyu-assistant.surge.sh/3.gif)
 

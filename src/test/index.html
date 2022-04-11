@@ -7,35 +7,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-        }
-
-        .inv-box {
-            padding: 10px;
-        }
-
-        .inv-box div {
-            margin-bottom: 10px;
-        }
-
-        .inv-box div input {
-            width: 200px;
-        }
-
-        .inv-box div button {
-            padding: 5px 10px;
-            margin-right: 10px;
-        }
-
-        .inv-box table {
+        .hupumoyu-table {
             width: 100%;
             border: 1px solid #cccccc;
         }
 
-        .inv-box table thead tr th,
-        .inv-box table tbody tr td {
+        .hupumoyu-table thead {}
+
+        .hupumoyu-table thead tr {}
+
+        .hupumoyu-table tbody {}
+
+        .hupumoyu-table tbody tr {}
+
+        .hupumoyu-table thead tr th,
+        .hupumoyu-table tbody tr td {
             border-top: 1px solid #cccccc;
             border-right: 1px solid #cccccc;
             padding: 0 5px;
@@ -43,163 +29,47 @@
             text-align: center;
         }
 
-        .inv-box table thead tr th {
+        .hupumoyu-table thead tr th {
             border-top: none;
         }
 
-        .inv-box table thead tr th:last-child {
+        .hupumoyu-table thead tr th:last-child {
             border-right: none;
         }
 
-        .inv-box table tbody tr td:last-child {
+        .hupumoyu-table tbody tr td:last-child {
             border-right: none;
-        }
-
-        .inv-box .table-box {
-            /* height: 500px;
-            overflow-y: auto; */
         }
     </style>
 </head>
 
-<body>
-    <form class="inv-box" onsubmit="return false;" id="inv">
-        <div>
-            <label for="firstAmount">
-                成本：<input type="number" name="" id="firstAmount">
-            </label>
-        </div>
-        <div>
-            <label for="invDate">
-                日期：<input type="date" id="invDate">
-            </label>
-        </div>
-        <div>
-            <button id="dayEarn">下一天</button>
-        </div>
-        <div class="table-box" id="box">
-            <table border="0" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>日期</th>
-                        <th>涨跌%</th>
-                        <th>收益</th>
-                        <th>收益率%</th>
-                        <th>成本</th>
-                        <th>剩余</th>
-                    </tr>
-                </thead>
-                <tbody id="tbody">
-                </tbody>
-            </table>
-        </div>
-    </form>
-    <script src="./mockData.js"></script>
-    <script>
-        // 保留 2 位小数
-        function saveDecimal(num, n = 2) {
-            const str = num.toString();
-            if (str.split('.').length > 1) {
-                return (`${str.split('.')[0]}.${str.split('.')[1].substring(0, n).padEnd(n, '0')}`);
-            } else {
-                return (`${str.split('.')[0]}.${''.padEnd(n, '0')}`);
-            }
-        };
-    </script>
-    <script>
-        let iFristAmount = 2500;
+<body id="hupumoyu-body" class="hupumoyu-body">
 
-        let thisTimeProfit = 0;
-        let totalProfit = 0;
-        let totalProfitPer = 0;
-        // 成本
-        let cost = 0;
-        // 剩余
-        let total = 0;
-
-        const aAddMount = [iFristAmount, iFristAmount * 2, iFristAmount * 2 * 2];
-        let aAddMountIndex = 0;
-
-        const oFristAmount = document.querySelector('#firstAmount');
-        oFristAmount.value = iFristAmount;
-        const oInvDate = document.querySelector('#invDate');
-        const btnDayEarn = document.querySelector('#dayEarn');
-
-        const oTbody = document.querySelector('#tbody');
-
-        function calcAllAmount() {
-            cost = Number(oFristAmount.value);
-            total = cost;
-        }
-
-        calcAllAmount();
-
-        oFristAmount.addEventListener('change', () => {
-            calcAllAmount();
-        });
-
-        showResult('2021-08-11');
-
-        // 持有收益率 = 持有收益 / 持有成本 * 100%
-
-        function showResult(date) {
-            calcAllAmount();
-
-            thisTimeProfit = 0;
-            totalProfit = 0;
-            totalProfitPer = 0;
-
-            let index = -1;
-            for (let i = 0; i < mockData.length; i++) {
-                if (date === mockData[i].FSRQ) {
-                    index = i;
-                }
-            }
-            let str = '';
-            for (let i = index; i >= 0; i--) {
-                if (mockData[i]) {
-                    // 这次的收益
-                    thisTimeProfit = saveDecimal((mockData[i].JZZZL / 100) * total);
-                    // 总收益 = 这次的收益 + 上次的收益
-                    totalProfit = saveDecimal(Number(thisTimeProfit) + Number(totalProfit));
-                    // 总收益率 = 总收益 / 成本 * 100
-                    totalProfitPer = saveDecimal(totalProfit / cost * 100);
-                    // 剩余总金额
-                    total = saveDecimal(Number(thisTimeProfit) + Number(total));
-                    str += `
-                    <tr>
-                        <td>${mockData[i].FSRQ}</td>
-                        <td style="color: ${Number(mockData[i].JZZZL)>0 ? 'red' : 'green'}">${mockData[i].JZZZL}</td>
-                        <td>${totalProfit}</td>
-                        <td>${totalProfitPer}</td>
-                        <td>${cost}</td>
-                        <td>${total}</td>
-                    </tr>`;
-
-                    // if (-15 >= totalProfitPer) {
-                    //     if (!aAddMountIndex) {
-                    //         cost += aAddMount[aAddMountIndex];
-                    //         aAddMountIndex++;
-                    //     }
-                    // }
-                }
-            }
-            oTbody.innerHTML = str;
-        }
-
-        oInvDate.addEventListener('change', (e) => {
-            if (e.target.value) {
-                showResult(e.target.value);
-            }
-        });
-
-        btnDayEarn.addEventListener('click', () => {
-            index--;
-            if (mockData[index]) {
-
-            }
-        });
-    </script>
+    <div id="hupumoyu-content-box">
+        <div class="fund-box"></div>
+        <div class="fund-box"></div>
+        <table class="hupumoyu-table" cellspacing="0">
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>净值</th>
+                    <th>估值</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>哈哈哈</td>
+                    <td>$100</td>
+                    <td>$100</td>
+                </tr>
+                <tr>
+                    <td>哈哈哈</td>
+                    <td>$100</td>
+                    <td>$100</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </body>
 
 </html>
