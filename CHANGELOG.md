@@ -21,16 +21,22 @@ fix2：所有 webview 打开逻辑进行调整，例如当前已经打开了一�
 ![fix1](https://vscode-hupumoyu-assistant.surge.sh/changelog/1.0.2/fix2.gif)
 
 ## [1.0.3]
-
 feat：切换板块中去掉热门板块，改为显示最近浏览过的板块
-
 ## [1.0.4]
-
 feat：优化冗余代码，将查询当场数据、战绩排行以及数据排行抽象公用。
+
 ## [1.0.5]
-
 feat：去掉了键盘退出键 escape 切换回工作模式的快捷键，因为影响到写代码了。
-## [1.0.6]
 
+## [1.0.6]
 feat：优化看帖子时的页码展示。
+
+## [1.0.7]
+feat1：步行街每个板块添加【更多】选项，可以切换到最新回复/最新发布/24小时热帖，如下图
+
+![feat1](https://vscode-hupumoyu-assistant.surge.sh/changelog/1.0.7/feat1.png)
+
+feat2：NBA板块每日赛程添加附加赛/常规赛/季后赛标识，如下图
+
+![fix2](https://vscode-hupumoyu-assistant.surge.sh/changelog/1.0.7/feat2.png)
 

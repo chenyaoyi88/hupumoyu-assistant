@@ -16,7 +16,7 @@
 		"湿乎乎",
 		"虎扑摸鱼助手"
 	],
-	"version": "1.0.6",
+	"version": "1.0.7",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
@@ -128,6 +128,11 @@
 			{
 				"command": "bxjTreeView.currentModulePost",
 				"title": "当前板块帖子",
+				"category": "虎扑摸鱼-步行街"
+			},
+			{
+				"command": "hupumoyu.clearLastviewed",
+				"title": "清除最近查看过的板块",
 				"category": "虎扑摸鱼-步行街"
 			}
 		],

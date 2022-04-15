@@ -276,8 +276,9 @@ function formatScheduleListData(context: vscode.ExtensionContext, data: any) {
             const currentDate = res.scheduleListStats ? (res.scheduleListStats.currentDate ? res.scheduleListStats.currentDate : localCurrentDate) : localCurrentDate;
             const matchDate = itemGameList.day;
             if (currentDate && matchDate) {
+                let matchListLabel: string = '';
                 const json: any = {
-                    label: currentDate === matchDate ? (matchDate + '(今天)') : matchDate,
+                    label: matchDate,
                     // 今天的比赛默认展开，其他日期比赛折叠
                     collapsibleState: currentDate === matchDate ? 2 : 1,
                 };
@@ -292,6 +293,9 @@ function formatScheduleListData(context: vscode.ExtensionContext, data: any) {
                     return desc;
                 };
                 for (let itemMatch of itemGameList.matchList) {
+                    if (matchListLabel.indexOf(itemMatch.competitionStageDesc) === -1) {
+                        matchListLabel += itemMatch.competitionStageDesc;
+                    }
                     const label = `${itemMatch.awayTeamName || ''} ${itemMatch.awayScore || '-'} : ${itemMatch.homeScore || '-'} ${itemMatch.homeTeamName || ''}`;
                     const description = matchDesc(itemMatch);
                     json[itemMatch.matchId] = {
@@ -307,6 +311,9 @@ function formatScheduleListData(context: vscode.ExtensionContext, data: any) {
                         },
                         contextValue: 'singleMatch',
                     };
+                }
+                if (matchListLabel.length) {
+                    json.label = currentDate === matchDate ? `【${matchListLabel}】${matchDate}(今天)` : `【${matchListLabel}】${matchDate}`;
                 }
                 arr.push(json);
             }

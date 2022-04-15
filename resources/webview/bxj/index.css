@@ -6,9 +6,27 @@ body {
 	margin: 0;
 	text-align: center;
 	padding: 5px 0;
+	/* display: flex;
+	justify-content: center; */
+	position: relative;
+	z-index: 1;
 }
 
 .hupumoyu-module-title .hupumoyu-module-type {
+	cursor: pointer;
+}
+
+.hupumoyu-module-title-main {
+}
+
+.hupumoyu-module-title-btn {
+	position: absolute;
+	z-index: 2;
+	right: 0;
+	cursor: pointer;
+}
+
+.hupumoyu-module-title-btn span {
 	cursor: pointer;
 }
 
@@ -28,7 +46,7 @@ body {
 .hupumoyu-module-list,
 .hupumoyu-module-list-box:hover,
 .hupumoyu-module-list-box:focus {
-  visibility: visible;
+	visibility: visible;
 }
 
 .hupumoyu-module-list-box .hupumoyu-module-list .hupumoyu-module-item {

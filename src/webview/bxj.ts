@@ -153,9 +153,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                 item.detail = `${item.read ? `阅读：` + item.read : ''}  ${item.lights ? `高亮：` + item.lights : ''}  ${item.replies ? `回复：` + item.replies : ''}`;
                 return item;
             });
-
             currentModule = this.currentSelectedModuleData.currentModule;
-
             const target: any = await vscode.window.showQuickPick(
                 aQuickPick,
                 {
@@ -163,7 +161,6 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                     placeHolder: '请选择要查看的帖子'
                 },
             );
-
             if (target) {
                 PostDetailWebView.createOrShow(context, target);
             }
@@ -176,10 +173,9 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
             context.globalState.update('bxj-settings-showPostImgs', true);
         }
 
-        let postImgsSetting = context.globalState.get('bxj-settings-showPostImgs');
-
         const quickPickList = [];
 
+        let postImgsSetting = context.globalState.get('bxj-settings-showPostImgs');
         if (postImgsSetting) {
             quickPickList.push({
                 label: '隐藏图片',
@@ -204,18 +200,52 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
 
         switch (target.value) {
             case 'hidePostImgs':
-                this.showPostImgs(context, false);
+                this.setOptions({ context, key: 'bxj-settings-showPostImgs', show: false, msg: '帖子图片' });
                 break;
             case 'showPostImgs':
-                this.showPostImgs(context, true);
+                this.setOptions({ context, key: 'bxj-settings-showPostImgs', show: true, msg: '帖子图片' });
                 break;
             default:
         }
     }
 
-    showPostImgs(context: vscode.ExtensionContext, show: boolean) {
-        context.globalState.update('bxj-settings-showPostImgs', show);
-        vscode.window.showInformationMessage('帖子图片已设置为' + (show ? '显示' : '隐藏'));
+    setOptions(options: any) {
+        options.context.globalState.update(options.key, options.show);
+        vscode.window.showInformationMessage(options.msg + '已设置为：' + (options.show ? '【显示】' : '【隐藏】'));
+        if (options.command) {
+            this._view?.webview.postMessage({
+                command: options.command,
+                data: options.show,
+            });
+        }
+    }
+
+    async switchPostType(context: vscode.ExtensionContext, currentModule: PostModule) {
+        const label: string = currentModule.label.split('-')[0];
+        const value: string = currentModule.value.split('-')[0];
+        const target: any = await vscode.window.showQuickPick(
+            [
+                {
+                    label: label,
+                    value: value,
+                },
+                {
+                    label: label + '-24小时热帖',
+                    value: value + '-hot',
+                },
+                {
+                    label: label + '-最新发表',
+                    value: value + '-postdate',
+                }
+            ],
+            {
+                title: '切换',
+                placeHolder: '下面是可选择设置的项'
+            },
+        );
+        if (target) {
+            this.getModuleData(context, target);
+        }
     }
 
     /**
@@ -356,7 +386,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
             }
         });
         // 返回按钮
-        pick.onDidTriggerButton((item) => {
+        pick.onDidTriggerButton(() => {
             pick.title = '请选择你想看的板块';
             pick.step = 1;
             pick.items = categoriesModule;
@@ -419,15 +449,21 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                     vscode.window.showInformationMessage('当前已经是第一页了');
                 }
             }
-            this.getModuleData(context, currentModule);
+            this.getModuleData(context, currentModule, false);
         } else {
             vscode.window.showInformationMessage(currentModule.label + '数据只有一页');
         }
     }
 
     // 设置最近查看过的板块
-    setLastViewedMoudule(currentModule: PostModule) {
+    setLastViewedMoudule(currentModule: PostModule, resetPageNo: boolean = true) {
         if (currentModule?.label && currentModule?.value) {
+            // 删除多余的属性
+            delete currentModule.description;
+            if (resetPageNo) {
+                delete currentModule.pageNo;
+            }
+
             const lastviewedList: Array<PostModule> = this._context.globalState.get('bxj-lastviewed-module') || [];
             if (lastviewedList?.length) {
                 // 有缓存数据
@@ -440,7 +476,6 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                 }
                 if (index === -1) {
                     // 没找到，在数组前面插入
-                    delete currentModule.description;
                     lastviewedList.unshift(currentModule);
                 } else {
                     // 找到了，放在最前面
@@ -475,11 +510,11 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         return currentSelectedModuleData;
     }
 
-    async getModuleData(context: vscode.ExtensionContext, currentModule: PostModule) {
+    async getModuleData(context: vscode.ExtensionContext, currentModule: PostModule, resetPageNo: boolean = true) {
         // 本地缓存更新当前选择的板块
         context.globalState.update('bxj-current-module', currentModule);
         // 加入到最近看过的板块
-        this.setLastViewedMoudule(currentModule);
+        this.setLastViewedMoudule(currentModule, resetPageNo);
         this._view?.webview.postMessage({
             command: 'showLoading',
         });
@@ -577,6 +612,9 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                     const data = JSON.parse(decodeURIComponent(res.data));
                     PostDetailWebView.createOrShow(this._context, data);
                     break;
+                case 'switchType':
+                    this.switchPostType(this._context, this.currentSelectedModuleData.currentModule);
+                    break;
                 default:
                     PostDetailWebView.hideLoading();
             }
@@ -605,12 +643,13 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
 				<link href="${styleMainUri}" rel="stylesheet">
 				<link href="${styleCommonUri}" rel="stylesheet">
 				
-				<title>虎扑摸鱼</title>
+				<title>标题</title>
 			</head>
 			<body id="hupumoyu-bxj">
 
                 <div data-id="hupumoyu-module-title-box" class="hupumoyu-module-title">
-                    <span data-id="hupumoyu-module-title"></span>
+                    <span class="hupumoyu-module-title-main" data-id="hupumoyu-module-title"></span>
+                    <span data-id="hupumoyu-module-title-btn" class="hupumoyu-module-title-btn"></span>
                 </div>
                 <div id="hupumoyu-module-list-box" class="hupumoyu-module-list-box hupumoyu-module-list-box_delayed">
                     <ul id="hupumoyu-module-list" class="hupumoyu-module-list"></ul>

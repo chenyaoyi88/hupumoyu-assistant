@@ -145,6 +145,11 @@ export default class IndexCommands {
             }
         });
         context.subscriptions.push(bossComing);
+
+        const clearLastviewed = commands.registerCommand('hupumoyu.clearLastviewed', (e: any) => {
+            context.globalState.update('bxj-lastviewed-module', []);
+        });
+        context.subscriptions.push(clearLastviewed);
     }
 
     webviewTarget: any = {};

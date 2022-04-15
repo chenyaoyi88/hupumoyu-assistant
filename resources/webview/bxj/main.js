@@ -35,7 +35,6 @@
     document.querySelector('#hupumoyu-bxj').addEventListener('click', (e) => {
         const target = e.target;
         const id = target.dataset.id;
-        console.dir(id);
         if (id) {
             switch (id) {
                 case 'hupumoyu-module-item':
@@ -50,14 +49,6 @@
                         data: target.parentElement.dataset.info,
                     });
                     break;
-                case 'hupumoyu-module-type':
-                    vscode.postMessage({
-                        command: '24hourhot',
-                        data: {
-
-                        },
-                    });
-                    break;
                 case 'hupumoyu-module-page-prev':
                     vscode.postMessage({
                         command: 'prevPage',
@@ -66,6 +57,11 @@
                 case 'hupumoyu-module-page-next':
                     vscode.postMessage({
                         command: 'nextPage',
+                    });
+                    break;
+                case 'hupumoyu-module-title-btn':
+                    vscode.postMessage({
+                        command: 'switchType',
                     });
                     break;
                 default:
@@ -113,8 +109,9 @@
                 oModuleListBox.scrollTop = 0;
             }
 
-            setModuleListHeight();
+            document.querySelector('[data-id="hupumoyu-module-title-btn"]').innerHTML = '更多';
 
+            setModuleListHeight();
         }
     }
 }());
