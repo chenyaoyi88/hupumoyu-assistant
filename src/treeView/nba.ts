@@ -133,7 +133,7 @@ export default class NBATreeView {
         if (isReload) {
             this.boxscore.webview?.showLoading();
         }
-        const res = await hupuBoxscore(data.gdcId);
+        const res = await hupuBoxscore(data);
         this.boxscore.webview?.hideLoading();
         // 发送消息到 webview 执行
         this.boxscore.webview?._panel?.webview?.postMessage({

@@ -148,18 +148,29 @@ export const hupuBxjModule = async (postPageName: string) => {
 };
 
 // 比赛数据
-export const hupuBoxscore = async (gdcId: string) => {
+export const hupuBoxscore = async (options: any): Promise<any> => {
     try {
-        const url = `https://nba.hupu.com/games/boxscore/${gdcId}`;
+        const url = options.url || `https://nba.hupu.com/games/boxscore/${options.gdcId}`;
         const body: any = await req(url, {
             resJson: false,
             tipsName: '9-比赛数据',
         });
-        const $ = cheerio.load(body);
+        const $ = cheerio.load(body, { ignoreWhitespace: true });
         const res = {
-            content: $('.gamecenter_content_l').html() || '',
+            content: '',
         };
-
+        if ($('.gamecenter_content_l').html()?.includes('table_list_live')) {
+            res.content = $('.gamecenter_content_l').html() || '';
+        } else {
+            const aListBox = $('.gamecenter_content_l .list_box .border_a');
+            for (let i = 0; i < aListBox.length; i++) {
+                const content = aListBox.eq(i)?.html();
+                if (content?.includes(options.homeTeamName) || content?.includes(options.awayTeamName)) {
+                    const url = aListBox.eq(i).find('.table_choose .d').attr('href');
+                    return hupuBoxscore({ url });
+                }
+            }
+        }
         if (_context?.extensionMode === 2) {
             console.log('9-比赛数据', res);
         }
