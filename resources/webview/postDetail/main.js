@@ -269,7 +269,8 @@
         // 用来隐藏页面未渲染完成时页面凌乱的状态
         oContent.classList.remove('hide');
         // 滚到最顶部
-        oContent.scrollTop = 0;
+        oContent.scrollTo(0, 0);
+        window.scrollTo(0, 0);
 
         setReplyClick();
         addImgHideCoverClass();
