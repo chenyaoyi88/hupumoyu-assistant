@@ -16,7 +16,7 @@
 		"湿乎乎",
 		"虎扑摸鱼助手"
 	],
-	"version": "1.0.8",
+	"version": "1.0.9",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
@@ -78,15 +78,6 @@
 					"dark": "resources/images/liveStudio/dark.svg",
 					"light": "resources/images/liveStudio/light.svg"
 				}
-			},
-			{
-				"command": "liveStudioTreeView.settings",
-				"title": "直播设置",
-				"icon": {
-					"dark": "resources/images/settings/dark.svg",
-					"light": "resources/images/settings/light.svg"
-				},
-				"category": "虎扑摸鱼-步行街"
 			},
 			{
 				"command": "bxjTreeView.refresh",
