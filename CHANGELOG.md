@@ -32,15 +32,16 @@ feat：去掉了键盘退出键 escape 切换回工作模式的快捷键，因�
 feat：优化看帖子时的页码展示。
 
 ## [1.0.7]
-feat1：步行街每个板块添加【更多】选项，可以切换到最新回复/最新发布/24小时热帖，如下图
+feat1：步行街每个板块添加【更多】选项，可以切换到最新回复/最新发布/24小时热帖。
 
-![feat1](https://vscode-hupumoyu-assistant.surge.sh/changelog/1.0.7/feat1.png)
-
-feat2：NBA板块每日赛程添加附加赛/常规赛/季后赛标识，如下图
+feat2：NBA板块每日赛程添加附加赛/常规赛/季后赛标识。
 
 ![fix2](https://vscode-hupumoyu-assistant.surge.sh/changelog/1.0.7/feat2.png)
 
 ## [1.0.8]
 
 fi1x1：修复查看比赛数据内容展示
+## [1.0.9]
+
+feat：展示季后赛大比分。
 

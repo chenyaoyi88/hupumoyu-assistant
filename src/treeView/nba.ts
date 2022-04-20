@@ -16,6 +16,7 @@ interface BoxscoreWebView {
     timer: ReturnType<typeof setTimeout> | any;
     duration: number;
 }
+
 export default class NBATreeView {
 
     // 比赛数据
@@ -296,7 +297,7 @@ function formatScheduleListData(context: vscode.ExtensionContext, data: any) {
                     if (matchListLabel.indexOf(itemMatch.competitionStageDesc) === -1) {
                         matchListLabel += itemMatch.competitionStageDesc;
                     }
-                    const label = `${itemMatch.awayTeamName || ''} ${itemMatch.awayScore || '-'} : ${itemMatch.homeScore || '-'} ${itemMatch.homeTeamName || ''}`;
+                    const label = `${itemMatch.awayBigScore === null ? '' : `（${itemMatch.awayBigScore}）`}${itemMatch.awayTeamName || ''} ${itemMatch.awayScore || '-'} : ${itemMatch.homeScore || '-'} ${itemMatch.homeTeamName || ''}${itemMatch.homeBigScore === null ? '' : `（${itemMatch.homeBigScore}）`}`;
                     const description = matchDesc(itemMatch);
                     json[itemMatch.matchId] = {
                         label,
@@ -306,14 +307,13 @@ function formatScheduleListData(context: vscode.ExtensionContext, data: any) {
                         iconPath: itemMatch.matchStatus === 'INPROGRESS' ? context.asAbsolutePath(path.join('resources', 'images', 'basketball_ing.svg')) : null,
                         command: {
                             title: '',
-                            command: 'nbaTreeView.currentMatchDetail',
                             arguments: [itemMatch],
                         },
                         contextValue: 'singleMatch',
                     };
                 }
                 if (matchListLabel.length) {
-                    json.label = currentDate === matchDate ? `【${matchListLabel}】${matchDate}(今天)` : `【${matchListLabel}】${matchDate}`;
+                    json.label = currentDate === matchDate ? `【${matchListLabel}】${matchDate}（今天）` : `【${matchListLabel}】${matchDate}`;
                 }
                 arr.push(json);
             }

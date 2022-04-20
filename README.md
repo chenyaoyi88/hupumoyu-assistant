@@ -20,7 +20,7 @@
 
 ![功能预览](https://vscode-hupumoyu-assistant.surge.sh/2.gif)
 
-Ctrl + Shift + P 或者 F1 输入工作模式，可以快速关掉所有摸鱼窗口，切换回工作模式
+Ctrl + Shift + P 或者 F1 输入工作模式，可以快速关掉所有摸鱼窗口，切换回工作模式（之前是按退出键直接关闭，后来热键有冲突于是改了）
 
 ![功能预览](https://vscode-hupumoyu-assistant.surge.sh/3.gif)
 
