@@ -10,9 +10,9 @@ export function activate(context: vscode.ExtensionContext) {
 	_context = context;
 	vscode.window.setStatusBarMessage('虎扑摸鱼助手已激活', 3000);
 	// 初始化步行街
-	new BxjTreeView(context);
+	IndexCommands.receiveView('bxj', new BxjTreeView(context));
 	// 初始化赛事日程
-	new NBATreeView(context);
+	IndexCommands.receiveView('nba', new NBATreeView(context));
 	// 初始化命令
 	new IndexCommands(context);
 }

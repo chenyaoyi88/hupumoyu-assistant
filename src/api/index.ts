@@ -74,9 +74,10 @@ export const hupuQueryHotLineList = async ({
 };
 
 // 帖子详情
-export const hupuPostDetail = async (posturl: string) => {
+export const hupuPostDetail = async (url: string) => {
     try {
-        const body: any = await req(`https://bbs.hupu.com${posturl}`, {
+        const postUrl: string = `https://bbs.hupu.com${url}`;
+        const body: any = await req(postUrl, {
             resJson: false,
             tipsName: '6-帖子详情',
         });
@@ -85,12 +86,13 @@ export const hupuPostDetail = async (posturl: string) => {
             userName: $('.post-user-comp-info-top-name').text() || '',
             userTime: $('.post-user-comp-info-top-time').text() || '',
             userTitle: $('.bbs-post-web-main-title .name').text() || '',
+            postUrl,
             postContent: $('.main-post-info .bbs-thread-comp.main-thread').html(),
             postLightReplyContent: $('.bbs-post-wrapper.light .bbs-post-wrapper-content').html(),
             postGrayReplyContent: $('.bbs-post-wrapper.gray .bbs-post-wrapper-content').html(),
             pagination: $('.pagination.bottom .hupu-rc-pagination').html(),
             noContent: $('.none-content').html(),
-            tid: posturl.match(/\d+/)?.[0],
+            tid: url.match(/\d+/)?.[0],
         };
 
         if (_context?.extensionMode === 2) {

@@ -256,6 +256,7 @@ interface ResPostDetail {
     userName: string;
     userTime: string;
     userTitle: string;
+    postUrl: string;
     postContent: string | null;
     postLightReplyContent: string | null;
     postGrayReplyContent: string | null;

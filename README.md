@@ -8,7 +8,7 @@
 [有问题可以在这里提出](https://github.com/chenyaoyi88/hupumoyu-assistant/issues)
 ## 功能介绍
 
-插件目前有两个板块组成，分别是 NBA 和 步行街，如下图
+没有登录功能，只是以游客模式来查看虎扑的部分内容，插件目前有两个板块组成，分别是 NBA 和 步行街，如下图
 
 ![功能预览](https://vscode-hupumoyu-assistant.surge.sh/index.png)
 

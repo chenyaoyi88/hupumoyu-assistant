@@ -16,7 +16,7 @@
 		"湿乎乎",
 		"虎扑摸鱼助手"
 	],
-	"version": "1.1.0",
+	"version": "1.2.0",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
@@ -129,6 +129,11 @@
 		],
 		"keybindings": [
 			{
+				"command": "hupumoyu.bossComing",
+				"key": "ctrl+alt+home",
+				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView' || nbaTreeView.active == true || bxjTreeView.active == true"
+			},
+			{
 				"command": "bxjTreeView.statusBarNext",
 				"key": "ctrl+alt+pageUp",
 				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView' || nbaTreeView.active == true || bxjTreeView.active == true"
@@ -139,7 +144,7 @@
 				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView' || nbaTreeView.active == true || bxjTreeView.active == true"
 			},
 			{
-				"command": "hupumoyu.selectWebview",
+				"command": "hupumoyu.testCommand",
 				"key": "ctrl+alt+insert",
 				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView' || nbaTreeView.active == true || bxjTreeView.active == true"
 			}

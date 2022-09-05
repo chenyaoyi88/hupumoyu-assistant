@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { hupuBxjModule } from '../api';
 import PostDetailWebView from './postDetail';
+import IndexCommands from '../commands';
 
 let myStatusBarItem: vscode.StatusBarItem;
 export default class BxjViewProvider implements vscode.WebviewViewProvider {
@@ -385,6 +386,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                 }
             }
         });
+
         // 返回按钮
         pick.onDidTriggerButton(() => {
             pick.title = '请选择你想看的板块';
@@ -588,6 +590,8 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         _token: vscode.CancellationToken,
     ) {
         this._view = webviewView;
+
+        IndexCommands.receiveWebviewMessage('bxj', webviewView);
 
         BxjViewProvider._webView = webviewView;
 

@@ -18,7 +18,6 @@ import {
 } from './api/index';
 
 import { findDiffList, addData } from './utils/index';
-import CommonWebView from './webview/common';
 
 export default class IndexCommands {
 
@@ -135,7 +134,7 @@ export default class IndexCommands {
 
             for (let webview in IndexCommands.webviewObject) {
                 if (IndexCommands.webviewObject[webview]) {
-                    IndexCommands.webviewObject[webview].dispose();
+                    IndexCommands.webviewObject[webview]?.dispose();
                 }
             }
 
@@ -150,13 +149,33 @@ export default class IndexCommands {
             context.globalState.update('bxj-lastviewed-module', []);
         });
         context.subscriptions.push(clearLastviewed);
+
+        const testCommand = commands.registerCommand('hupumoyu.testCommand', async () => {
+            const bxjWebview = IndexCommands.webviewObject['bxj'];
+            if (bxjWebview) {
+                // 步行街已启动
+                if (bxjWebview.visible) {
+                    // 当前可见，切换为不可见
+                    commands.executeCommand('workbench.view.explorer');
+                } else {
+                    // 当前不可见，切换为可见
+                    commands.executeCommand('workbench.view.extension.hupuMoyuTreeView');
+                }
+            } else {
+                // 步行街未启动
+            }
+        });
+        context.subscriptions.push(testCommand);
     }
 
-    webviewTarget: any = {};
     static webviewObject: any = {};
-
     static receiveWebviewMessage(webviewName: string, webviewInstance: any) {
         IndexCommands.webviewObject[webviewName] = webviewInstance;
+    }
+
+    static viewObject: any = {};
+    static receiveView(viewName: string, viewInstance: any) {
+        IndexCommands.viewObject[viewName] = viewInstance;
     }
 
     async getLiveStudioData(context: ExtensionContext, item: any) {

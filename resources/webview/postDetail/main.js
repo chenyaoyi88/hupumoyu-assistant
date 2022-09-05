@@ -68,18 +68,6 @@
         }
     });
 
-    // document.querySelector('#hupumoyu-postDetail').addEventListener('click', (e) => {
-    //     const target = e.target;
-    //     const id = target.dataset.id;
-    //     if (id) {
-    //         switch (id) {
-    //             case 'first':
-    //                 break;
-    //             default:
-    //         }
-    //     }
-    // });
-
     function setReplyClick() {
         const aReplayList = document.querySelectorAll('.todo-list.todo-list-replay');
 
@@ -203,6 +191,23 @@
         }
     }
 
+    function setClickEvent(data) {
+        document.querySelector('#hupumoyu-postDetail').addEventListener('click', (e) => {
+            const target = e.target;
+            const id = target.dataset.id;
+            if (id) {
+                switch (id) {
+                    case 'open':
+                        // console.log(id);
+                        // console.log(data);
+                        window.open(data.postUrl);
+                        break;
+                    default:
+                }
+            }
+        });
+    }
+
     // 添加隐藏图片覆盖样式
     function addImgHideCoverClass(selectorList) {
         let aImg = [];
@@ -221,6 +226,7 @@
     }
 
     function setContent(data) {
+        console.log('帖子详情', data);
         vscode.setState({
             data,
         });
@@ -232,7 +238,7 @@
 
         oTitle.innerHTML =
             `
-            <p>${data.userTitle || ''}</p>
+            <p>${data.userTitle || ''}<a href="javascript;" data-id="open">浏览器打开</a></p>
             <p>
                 <a href="javascript;">${data.userName || ''}</a>
                 <span>${data.userTime || ''}</span>
@@ -276,6 +282,7 @@
         addImgHideCoverClass();
         showPostImgAndVideo(document.querySelectorAll('#hupumoyu-postDetail img,video'));
         rerenderPagination();
+        setClickEvent(data);
     }
 
     window.addEventListener('resize', () => {
