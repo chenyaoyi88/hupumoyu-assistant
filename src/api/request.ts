@@ -17,12 +17,12 @@ export default function req(url: string, options?: { resJson?: Boolean, tipsName
                 if (options?.resJson === undefined || options?.resJson) {
                     resData = JSON.parse(body);
                     if (_context?.extensionMode === 2) {
-                        console.log(options?.tipsName, '接口响应', resData);
+                        console.log(options?.tipsName, '接口响应1', resData);
                     }
                 } else {
                     resData = body;
                     if (_context?.extensionMode === 2) {
-                        console.log(options?.tipsName, '接口响应');
+                        console.log(options?.tipsName, '接口响应2');
                     }
                 }
                 resolve(resData);

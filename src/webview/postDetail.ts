@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { hupuPostReply, hupuPostDetail } from '../api/index';
+import * as open from 'open';
 
 interface InitData {
     url: string;
@@ -10,16 +11,16 @@ export default class PostDetailWebView {
     public static readonly viewType = 'postDetailPanel';
 
     public static currentPanel: PostDetailWebView | undefined;
-    private readonly _panel: vscode.WebviewPanel;
     private readonly _context: vscode.ExtensionContext;
     private _disposables: vscode.Disposable[] = [];
+    public static panel: vscode.WebviewPanel;
+    public static saveData: any = null;
 
     private constructor(
         context: vscode.ExtensionContext,
         panel: vscode.WebviewPanel,
         data: InitData,
     ) {
-        this._panel = panel;
         this._context = context;
 
         this.init(data);
@@ -28,14 +29,17 @@ export default class PostDetailWebView {
     // 初始化
     async init(data: InitData) {
         this.getPostDetailContent({
-            postUrl: data.url,
+            url: data.url,
             pageNo: 1,
         });
 
         // 接收 webview 发送的消息
-        this._panel.webview.onDidReceiveMessage(
+        PostDetailWebView.panel.webview.onDidReceiveMessage(
             async (message) => {
                 switch (message.command) {
+                    case 'openBrowser':
+                        open(message.content);
+                        break;
                     case 'getPostReply':
                         try {
                             const res: any = await hupuPostReply({
@@ -43,7 +47,7 @@ export default class PostDetailWebView {
                                 pid: message.content.pid,
                             });
                             if (res.data && res.data.list && res.data.list.length) {
-                                this._panel.webview.postMessage({
+                                PostDetailWebView.panel.webview.postMessage({
                                     command: 'postReply',
                                     data: res.data.list,
                                 });
@@ -57,10 +61,10 @@ export default class PostDetailWebView {
                         try {
                             const pageNo = message.content.pageNo;
                             const tid = message.content.tid;
-                            const postUrl = `/${tid}-${pageNo}.html`;
+                            const url = `/${tid}-${pageNo}.html`;
 
                             this.getPostDetailContent({
-                                postUrl,
+                                url,
                                 pageNo: pageNo,
                             });
 
@@ -69,6 +73,11 @@ export default class PostDetailWebView {
                             console.log(error);
                         }
                         break;
+                    case 'saveData':
+                        console.log('接收保存的内容', message.content);
+                        PostDetailWebView.saveData = message.content;
+                        break;
+                    default:
                 }
             },
             null,
@@ -76,14 +85,17 @@ export default class PostDetailWebView {
         );
 
         // 关闭打开的 webview ，在已打开列表中清除
-        this._panel.onDidDispose(() => this.dispose(), null, this._disposables);
+        PostDetailWebView.panel.onDidDispose(() => this.dispose(), null, this._disposables);
     }
 
+    public static closeTab() {
+
+    }
 
     public dispose() {
         if (PostDetailWebView.currentPanel) {
             PostDetailWebView.currentPanel = undefined;
-            this._panel.dispose();
+            PostDetailWebView.panel.dispose();
         }
 
         while (this._disposables.length) {
@@ -98,14 +110,14 @@ export default class PostDetailWebView {
      * 获取帖子内容
      * @param data 
      */
-    async getPostDetailContent(data: { postUrl: string, pageNo: number }) {
-        const resPostDetail: ResPostDetail | null = await hupuPostDetail(data.postUrl);
+    async getPostDetailContent(data: { url: string, pageNo: number }) {
+        const resPostDetail: ResPostDetail | null = await hupuPostDetail(data.url);
         this.hideLoading();
         if (resPostDetail) {
             resPostDetail.showPostImgs = this._context.globalState.get('bxj-settings-showPostImgs');
             resPostDetail.pageNo = data.pageNo;
             // 发送消息到 webview 执行
-            this._panel.webview.postMessage({
+            PostDetailWebView.panel.webview.postMessage({
                 command: 'updatePostDetail',
                 data: resPostDetail,
             });
@@ -116,31 +128,31 @@ export default class PostDetailWebView {
 
     public static forceCloseWebview() {
         if (PostDetailWebView.currentPanel) {
-            PostDetailWebView.currentPanel._panel?.dispose();
+            PostDetailWebView.panel.dispose();
             PostDetailWebView.currentPanel = undefined;
         }
     }
 
     public static showLoading() {
-        PostDetailWebView.currentPanel?._panel.webview.postMessage({
+        PostDetailWebView.panel.webview.postMessage({
             command: 'showLoading',
         });
     }
 
     public static hideLoading() {
-        PostDetailWebView.currentPanel?._panel.webview.postMessage({
+        PostDetailWebView.panel.webview.postMessage({
             command: 'hideLoading',
         });
     }
 
     showLoading() {
-        this._panel.webview.postMessage({
+        PostDetailWebView.panel.webview.postMessage({
             command: 'showLoading',
         });
     }
 
     hideLoading() {
-        this._panel.webview.postMessage({
+        PostDetailWebView.panel.webview.postMessage({
             command: 'hideLoading',
         });
     }
@@ -151,35 +163,35 @@ export default class PostDetailWebView {
             ? vscode.window.activeTextEditor.viewColumn
             : undefined;
 
-        // 如果已经打开了一个窗口，则直接刷新窗口内容，不用重新再打开一个新的
         if (PostDetailWebView.currentPanel) {
-            column = PostDetailWebView.currentPanel._panel.viewColumn;
-            PostDetailWebView.currentPanel._panel.reveal(column);
+            // 如果已经打开了一个窗口，则直接刷新窗口内容，不用重新再打开一个新的
+            column = PostDetailWebView.panel.viewColumn;
+            PostDetailWebView.panel.reveal(column);
             PostDetailWebView.currentPanel.showLoading();
-            PostDetailWebView.currentPanel._panel.title = data.title;
-            PostDetailWebView.currentPanel.getPostDetailContent({
-                postUrl: data.url,
-                pageNo: 1,
-            });
-            return;
+            PostDetailWebView.panel.title = data.title || '';
+        } else {
+            // 如果没有创建过就直接创建
+            PostDetailWebView.panel = vscode.window.createWebviewPanel(
+                // 标识面板类型，面板 id
+                PostDetailWebView.viewType,
+                // 标题
+                data.title || '',
+                // 当前活动窗口旁边打开 || 如果编辑器没有活动窗口，则新打开一个
+                column || vscode.ViewColumn.One,
+                // 配置项
+                getWebviewOptions(context.extensionUri),
+            );
+
+            // 渲染 webview 
+            PostDetailWebView.panel.webview.html = this._getHtmlForWebview(PostDetailWebView.panel.webview, context.extensionUri);
+
+            PostDetailWebView.currentPanel = new PostDetailWebView(context, PostDetailWebView.panel, data);
         }
 
-        // 如果没有创建过就直接创建
-        const panel = vscode.window.createWebviewPanel(
-            // 标识面板类型，面板 id
-            PostDetailWebView.viewType,
-            // 标题
-            data.title,
-            // 当前活动窗口旁边打开 || 如果编辑器没有活动窗口，则新打开一个
-            column || vscode.ViewColumn.One,
-            // 配置项
-            getWebviewOptions(context.extensionUri),
-        );
-
-        // 渲染 webview 
-        panel.webview.html = this._getHtmlForWebview(panel.webview, context.extensionUri);
-
-        PostDetailWebView.currentPanel = new PostDetailWebView(context, panel, data);
+        PostDetailWebView.currentPanel.getPostDetailContent({
+            url: data.url,
+            pageNo: data.pageNo || 1,
+        });
     }
 
     private static _getHtmlForWebview(webview: vscode.Webview, extensionUri: vscode.Uri) {
@@ -248,15 +260,16 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
 interface PostDetailInitData {
     title: string;
     url: string;
+    pageNo?: number
 }
 
 interface ResPostDetail {
     showPostImgs?: boolean | undefined;
     pageNo?: number | string | undefined;
-    userName: string;
-    userTime: string;
-    userTitle: string;
-    postUrl: string;
+    author: string;
+    createTime: string;
+    title: string;
+    url: string;
     postContent: string | null;
     postLightReplyContent: string | null;
     postGrayReplyContent: string | null;

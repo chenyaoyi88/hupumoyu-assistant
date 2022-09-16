@@ -76,17 +76,17 @@ export const hupuQueryHotLineList = async ({
 // 帖子详情
 export const hupuPostDetail = async (url: string) => {
     try {
-        const postUrl: string = `https://bbs.hupu.com${url}`;
+        const postUrl: string = url.includes('http') ? url : `https://bbs.hupu.com${url}`;
         const body: any = await req(postUrl, {
             resJson: false,
             tipsName: '6-帖子详情',
         });
         const $ = cheerio.load(body);
         const res = {
-            userName: $('.post-user-comp-info-top-name').text() || '',
-            userTime: $('.post-user-comp-info-top-time').text() || '',
-            userTitle: $('.bbs-post-web-main-title .name').text() || '',
-            postUrl,
+            author: $('.post-user-comp-info-top-name').text() || '',
+            createTime: $('.post-user-comp-info-top-time').text() || '',
+            title: $('.bbs-post-web-main-title .name').text() || '',
+            url: postUrl,
             postContent: $('.main-post-info .bbs-thread-comp.main-thread').html(),
             postLightReplyContent: $('.bbs-post-wrapper.light .bbs-post-wrapper-content').html(),
             postGrayReplyContent: $('.bbs-post-wrapper.gray .bbs-post-wrapper-content').html(),

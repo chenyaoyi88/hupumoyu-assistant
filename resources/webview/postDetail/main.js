@@ -4,15 +4,17 @@
     const vscode = acquireVsCodeApi();
     const oldState = (vscode.getState());
 
+    let selectedReplyElement = null;
+    let receiceData = null;
+
     // 如果之前有值，则回填
     if (oldState && oldState.data) {
         hideLoading();
+        receiceData = oldState.data;
         setContent(oldState.data);
     }
 
-    let selectedReplyElement = null;
-
-    // 发送消息
+    // 接收信息
     window.addEventListener('message', event => {
         const message = event.data;
         const data = message.data;
@@ -25,6 +27,7 @@
                 break;
             case 'updatePostDetail':
                 hideLoading();
+                receiceData = data;
                 setContent(data);
                 break;
             case 'postReply':
@@ -63,12 +66,20 @@
                     showPostImgAndVideo(newReplyList);
                 }
                 break;
+            case 'saveData':
+                // 保存当前内容
+                vscode.postMessage({
+                    command: 'saveData',
+                    content: receiceData,
+                });
+                break;
             default:
                 hideLoading();
         }
     });
 
     function setReplyClick() {
+
         const aReplayList = document.querySelectorAll('.todo-list.todo-list-replay');
 
         // @ts-ignore
@@ -98,12 +109,11 @@
                         });
                     }
                 }
-
             }, false);
         }
     }
 
-    function rerenderPagination() {
+    function rerenderPagination(data = {}) {
         const aPageEle = document.querySelectorAll('.hupumoyu-pagination-hide .hupu-rc-pagination-item');
         const oContent = /** @type {HTMLElement} */ document.getElementById('hupumoyu-content-box');
         const oPagination = /** @type {HTMLElement} */ document.querySelector('#hupumoyu-pagination');
@@ -114,14 +124,14 @@
                 const lastPageNo = Number(value.split('.')[0].split('-')[1]);
 
                 const currentState = (vscode.getState());
-                let currentPageNo = Number(currentState.data.pageNo);
+                let currentPageNo = data.pageNo || Number(currentState.data.pageNo);
 
                 oPagination.innerHTML = `
                 <a href="javascript;" class="hupumoyu-pagination-item" data-id="first" data-page="first">首页</a>
                 <a href="javascript;" class="hupumoyu-pagination-item" data-id="prev" data-page="prev">上一页</a>
                 <a href="javascript;" class="hupumoyu-pagination-item" data-id="next" data-page="next">下一页</a>
                 <a href="javascript;" class="hupumoyu-pagination-item" data-id="last" data-page="last">尾页</a>
-                <span href="javascript;" class="hupumoyu-pagination-item">${currentState.data.pageNo}/${lastPageNo}</span>
+                <span href="javascript;" class="hupumoyu-pagination-item">${currentPageNo}/${lastPageNo}</span>
                 `;
 
                 oContent.style.height = window.innerHeight - oPagination.offsetHeight - 15 + 'px';
@@ -165,6 +175,9 @@
                                 pagechange(lastPageNo);
                                 break;
                         }
+                        if (receiceData) {
+                            receiceData.pageNo = currentPageNo;
+                        }
                     }, false);
                 }
             }
@@ -198,9 +211,10 @@
             if (id) {
                 switch (id) {
                     case 'open':
-                        // console.log(id);
-                        // console.log(data);
-                        window.open(data.postUrl);
+                        vscode.postMessage({
+                            command: 'openBrowser',
+                            content: data.postUrl,
+                        });
                         break;
                     default:
                 }
@@ -226,7 +240,7 @@
     }
 
     function setContent(data) {
-        console.log('帖子详情', data);
+        console.log('帖子详情---main.js', data);
         vscode.setState({
             data,
         });
@@ -238,10 +252,10 @@
 
         oTitle.innerHTML =
             `
-            <p>${data.userTitle || ''}<a href="javascript;" data-id="open">浏览器打开</a></p>
+            <p>${data.title || ''}<a style="margin: 0 5px;" href="javascript;" data-id="open">浏览器打开</a></p>
             <p>
-                <a href="javascript;">${data.userName || ''}</a>
-                <span>${data.userTime || ''}</span>
+                <a href="javascript;">${data.author || ''}</a>
+                <span>${data.createTime || ''}</span>
             </p>
             `;
         oThreadContentDetail.innerHTML = data.postContent || '';
@@ -281,7 +295,7 @@
         setReplyClick();
         addImgHideCoverClass();
         showPostImgAndVideo(document.querySelectorAll('#hupumoyu-postDetail img,video'));
-        rerenderPagination();
+        rerenderPagination(data);
         setClickEvent(data);
     }
 
