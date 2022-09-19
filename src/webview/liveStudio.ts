@@ -14,6 +14,8 @@ export default class LiveStudioWebView {
     private readonly _panel: vscode.WebviewPanel;
     private readonly _context: vscode.ExtensionContext;
     private _disposables: vscode.Disposable[] = [];
+    public static panel: vscode.WebviewPanel;
+    public static resPostDetail: any = {};
 
     private constructor(
         context: vscode.ExtensionContext,
@@ -280,6 +282,8 @@ export default class LiveStudioWebView {
 
         data.title = `${data.awayTeamName} - ${data.homeTeamName}`;
 
+        LiveStudioWebView.resPostDetail = data;
+
         // 如果已经打开了一个窗口，则直接刷新窗口内容，不用重新再打开一个新的
         if (LiveStudioWebView.currentPanel) {
             column = LiveStudioWebView.currentPanel._panel.viewColumn;
@@ -291,7 +295,7 @@ export default class LiveStudioWebView {
         }
 
         // 如果没有创建过就直接创建
-        const panel = vscode.window.createWebviewPanel(
+        LiveStudioWebView.panel = vscode.window.createWebviewPanel(
             // 标识面板类型，面板 id
             LiveStudioWebView.viewType,
             // 标题
@@ -303,9 +307,9 @@ export default class LiveStudioWebView {
         );
 
         // 渲染 webview 
-        panel.webview.html = this._getHtmlForWebview(panel.webview, context.extensionUri);
+        LiveStudioWebView.panel.webview.html = this._getHtmlForWebview(LiveStudioWebView.panel.webview, context.extensionUri);
 
-        LiveStudioWebView.currentPanel = new LiveStudioWebView(context, panel, data);
+        LiveStudioWebView.currentPanel = new LiveStudioWebView(context, LiveStudioWebView.panel, data);
     }
 
     private static _getHtmlForWebview(webview: vscode.Webview, extensionUri: vscode.Uri) {
@@ -332,14 +336,14 @@ export default class LiveStudioWebView {
 
 				<title>标题</title>
 			</head>
-			<body id="hupumoyu-body" class="hupumoyu-body">
+			<body id="hupumoyu-body" class="hupumoyu-body hupumoyu-postDetail">
 
-                <div class="ls-title-box" data-id="ls-title-box">
+                <div data-target="content" class="ls-title-box" data-id="ls-title-box">
                     <a href="javascript:;" data-id="ls-title-setting" class="ls-title-setting"></a>
                     <span class="ls-title" data-id="ls-title"></span>
                 </div>
 
-                <div class="ls-content-box" data-id="ls-content-box">
+                <div data-target="content" class="ls-content-box" data-id="ls-content-box">
                     <div class="ls-content" data-id="ls-content-live">
                         <div class="ls-content-title">直播间</div>
                         <div class="ls-content-wrap ls-live-box"></div>
@@ -349,6 +353,8 @@ export default class LiveStudioWebView {
                         <div class="ls-content-wrap ls-hotline-box"></div>
                     </div>
                 </div>
+                
+                <div class="fake-content" id="fakeContent"></div>
            
                 <script src="${scriptCommonUri}"></script>
 				<script src="${scriptUri}"></script>

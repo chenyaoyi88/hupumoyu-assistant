@@ -126,54 +126,40 @@ export default class IndexCommands {
         context.subscriptions.push(currentDayMatchList);
 
         // 快速切换工作/摸鱼模式
-        const bossComing = commands.registerCommand('hupumoyu.bossComing', (e: { extensionId: string }) => {
+        const bossComing = commands.registerCommand('hupumoyu.bossComing', async (e: { extensionId: string }) => {
 
+            const aWebview: any = [PostDetailWebView, LiveStudioWebView];
             const bxjWebview = IndexCommands.viewObject.bxj;
             if (bxjWebview?._view) {
                 // 步行街已启动
                 if (bxjWebview._view.visible) {
-                    // 当前可见，切换为不可见，同时保存当前打开的页面，方便下次恢复
-                    console.log('当前可见，切换为不可见，同时保存当前打开的页面，方便下次恢复');
-
-                    // 保存关闭前的数据
-                    PostDetailWebView.panel.webview.postMessage({
-                        command: 'saveData',
-                    });
-
-                    setTimeout(() => {
-                        PostDetailWebView.currentPanel = undefined;
-                        PostDetailWebView.panel?.dispose();
-                        commands.executeCommand('workbench.view.explorer');
-                    }, 300);
-
-                    // // 关闭直播间
-                    // LiveStudioWebView.forceCloseWebview();
-                    // // 关闭步行街打开的帖子
-                    // PostDetailWebView.forceCloseWebview();
-
-                    // for (let webview in IndexCommands.webviewObject) {
-                    //     if (IndexCommands.webviewObject[webview]) {
-                    //         IndexCommands.webviewObject[webview]?.dispose();
-                    //     }
-                    // }
-
-                    // // 如果左侧的板块的可见的，则切换到资源管理器界面
-                    // if (NBATreeView?._treeView?.visible || BxjTreeView?._webView?.visible) {
-                    //     commands.executeCommand('workbench.view.explorer');
-                    // }
-
+                    for (let i = 0; i < aWebview.length; i++) {
+                        const item = aWebview[i];
+                        if (item['panel']) {
+                            item['panel']?.webview.postMessage({
+                                command: 'switchMode',
+                                data: {
+                                    mode: 'bossComing',
+                                }
+                            });
+                            item['panel'].title = `hello-world${i}.js`;
+                        }
+                    }
+                    commands.executeCommand('workbench.view.explorer');
                 } else {
                     // 当前不可见，切换为可见
-                    console.log('当前不可见，切换为可见');
-
-                    commands.executeCommand('workbench.view.extension.hupuMoyuTreeView');
-
-                    setTimeout(() => {
-                        console.log(PostDetailWebView.saveData);
-                        if (PostDetailWebView.saveData) {
-                            PostDetailWebView.createOrShow(context, PostDetailWebView.saveData);
+                    for (let item of aWebview) {
+                        if (item['panel']) {
+                            item['panel'].title = item.resPostDetail.title;
+                            item['panel'].webview.postMessage({
+                                command: 'switchMode',
+                                data: {
+                                    mode: 'bossGone',
+                                }
+                            });
                         }
-                    }, 100);
+                    }
+                    commands.executeCommand('workbench.view.extension.hupuMoyuTreeView');
                 }
             } else {
                 // 步行街未启动 TODO

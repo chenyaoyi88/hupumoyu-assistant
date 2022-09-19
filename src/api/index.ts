@@ -186,6 +186,7 @@ export const hupuBoxscore = async (options: any): Promise<any> => {
 export const hupusingleMatch = async (matchId: string) => {
     try {
         const res = await req(`https://games.mobileapi.hupu.com/1/7.5.60/basketballapi/singleMatch?matchId=${matchId}`, {
+            resJson: false,
             tipsName: '10-当场比赛',
         });
         return res;

@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { hupuPostReply, hupuPostDetail } from '../api/index';
 import * as open from 'open';
-
 interface InitData {
     url: string;
 }
@@ -14,7 +13,8 @@ export default class PostDetailWebView {
     private readonly _context: vscode.ExtensionContext;
     private _disposables: vscode.Disposable[] = [];
     public static panel: vscode.WebviewPanel;
-    public static saveData: any = null;
+    // 帖子返回的数据
+    public static resPostDetail: any = null;
 
     private constructor(
         context: vscode.ExtensionContext,
@@ -22,7 +22,6 @@ export default class PostDetailWebView {
         data: InitData,
     ) {
         this._context = context;
-
         this.init(data);
     }
 
@@ -73,10 +72,6 @@ export default class PostDetailWebView {
                             console.log(error);
                         }
                         break;
-                    case 'saveData':
-                        console.log('接收保存的内容', message.content);
-                        PostDetailWebView.saveData = message.content;
-                        break;
                     default:
                 }
             },
@@ -111,15 +106,16 @@ export default class PostDetailWebView {
      * @param data 
      */
     async getPostDetailContent(data: { url: string, pageNo: number }) {
-        const resPostDetail: ResPostDetail | null = await hupuPostDetail(data.url);
+        const res: ResPostDetail | null = await hupuPostDetail(data.url);
         this.hideLoading();
-        if (resPostDetail) {
-            resPostDetail.showPostImgs = this._context.globalState.get('bxj-settings-showPostImgs');
-            resPostDetail.pageNo = data.pageNo;
+        if (res) {
+            res.showPostImgs = this._context.globalState.get('bxj-settings-showPostImgs');
+            res.pageNo = data.pageNo;
             // 发送消息到 webview 执行
+            PostDetailWebView.resPostDetail = res;
             PostDetailWebView.panel.webview.postMessage({
                 command: 'updatePostDetail',
-                data: resPostDetail,
+                data: res,
             });
         } else {
             vscode.window.showErrorMessage('帖子内容获取失败，请重试');
@@ -187,7 +183,6 @@ export default class PostDetailWebView {
 
             PostDetailWebView.currentPanel = new PostDetailWebView(context, PostDetailWebView.panel, data);
         }
-
         PostDetailWebView.currentPanel.getPostDetailContent({
             url: data.url,
             pageNo: data.pageNo || 1,
@@ -208,39 +203,39 @@ export default class PostDetailWebView {
 			<html lang="en">
 			<head>
 				<meta charset="UTF-8">
-
 				<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 				<link href="${styleResetUri}" rel="stylesheet">
 				<link href="${styleVSCodeUri}" rel="stylesheet">
 				<link href="${stylesIndexUri}" rel="stylesheet">
 				<link href="${styleCommonUri}" rel="stylesheet">
-
 				<title>标题</title>
 			</head>
 			<body id="hupumoyu-postDetail" class="hupumoyu-postDetail">
-                <!-- 内容 -->
-                <div id="hupumoyu-content-box" class="hupumoyu-content-box hide">
-                    <!-- 帖子标题 -->
-                    <div id="hupumoyu-title" class="hupumoyu-title"></div>
-                    <!-- 帖子内容 -->
-                    <div class="hupumoyu-content-main" id="hupumoyu-content-main"></div>
-                    <!-- 回帖亮了 -->
-                    <div id="hupumoyu-content-light" class="hupumoyu-content-light">
-                        <div class="hupumoyu-post-wrapper-title">这些回帖亮了</div>
-                        <div class="hupumoyu-post-wrapper-content" id="lightReplyContent"></div>
+
+                    <!-- 内容 -->
+                    <div data-target="content" class="hupumoyu-content-box hide" id="hupumoyu-content-box">
+                        <!-- 帖子标题 -->
+                        <div id="hupumoyu-title" class="hupumoyu-title"></div>
+                        <!-- 帖子内容 -->
+                        <div class="hupumoyu-content-main" id="hupumoyu-content-main"></div>
+                        <!-- 回帖亮了 -->
+                        <div id="hupumoyu-content-light" class="hupumoyu-content-light">
+                            <div class="hupumoyu-post-wrapper-title">这些回帖亮了</div>
+                            <div class="hupumoyu-post-wrapper-content" id="lightReplyContent"></div>
+                        </div>
+                        <!-- 普通回帖 -->
+                        <div id="hupumoyu-content-gray" class="hupumoyu-content-gray">
+                            <div class="hupumoyu-post-wrapper-title">全部回帖</div>
+                            <div class="hupumoyu-post-wrapper-content" id="grayReplyContent"></div>
+                        </div>
                     </div>
-                    <!-- 普通回帖 -->
-                    <div id="hupumoyu-content-gray" class="hupumoyu-content-gray">
-                        <div class="hupumoyu-post-wrapper-title">全部回帖</div>
-                        <div class="hupumoyu-post-wrapper-content" id="grayReplyContent"></div>
-                    </div>
-                </div>
-                <!-- 页码 -->
-                <div class="hupumoyu-pagination-hide" id="hupumoyu-pagination-hide"></div>
-                <div class="hupumoyu-pagination" id="hupumoyu-pagination"></div>
-                <div id="hupumoyu-loading" class="hupumoyu-loading">加载中...</div>
-           
+                    <!-- 页码 -->
+                    <div data-target="content" class="hupumoyu-pagination-hide" id="hupumoyu-pagination-hide"></div>
+                    <div data-target="content" class="hupumoyu-pagination" id="hupumoyu-pagination"></div>
+                    <div data-target="content" class="hupumoyu-loading" id="hupumoyu-loading">加载中...</div>
+
+                    <div class="fake-content" id="fakeContent"></div>
+     
                 <script src="${scriptCommonUri}"></script>
 				<script src="${scriptUri}"></script>
 			</body>

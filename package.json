@@ -130,7 +130,7 @@
 		"keybindings": [
 			{
 				"command": "hupumoyu.bossComing",
-				"key": "ctrl+alt+home",
+				"key": "ctrl+alt+`",
 				"when": "activeViewlet == 'workbench.view.extension.hupuMoyuTreeView' || nbaTreeView.active == true || bxjTreeView.active == true"
 			},
 			{

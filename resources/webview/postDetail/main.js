@@ -5,12 +5,10 @@
     const oldState = (vscode.getState());
 
     let selectedReplyElement = null;
-    let receiceData = null;
 
     // 如果之前有值，则回填
     if (oldState && oldState.data) {
         hideLoading();
-        receiceData = oldState.data;
         setContent(oldState.data);
     }
 
@@ -25,9 +23,26 @@
             case 'hideLoading':
                 hideLoading();
                 break;
+            case 'switchMode':
+                const aContent = document.querySelectorAll('[data-target="content"]');
+                if (data.mode === 'bossComing') {
+                    for (let i = 0; i < aContent.length; i++) {
+                        aContent[i].classList.add('hide-content');
+                    }
+                    const fakeContent = document.querySelector('#fakeContent');
+                    fakeContent.style.display = 'block';
+                    if (!fakeContent.innerHTML) {
+                        fakeContent.innerHTML = 'Hello world!';
+                    }
+                } else {
+                    for (let i = 0; i < aContent.length; i++) {
+                        aContent[i].classList.remove('hide-content');
+                    }
+                    document.querySelector('#fakeContent').style.display = 'none';
+                }
+                break;
             case 'updatePostDetail':
                 hideLoading();
-                receiceData = data;
                 setContent(data);
                 break;
             case 'postReply':
@@ -65,13 +80,6 @@
                     addImgHideCoverClass(newReplyList);
                     showPostImgAndVideo(newReplyList);
                 }
-                break;
-            case 'saveData':
-                // 保存当前内容
-                vscode.postMessage({
-                    command: 'saveData',
-                    content: receiceData,
-                });
                 break;
             default:
                 hideLoading();
@@ -175,9 +183,6 @@
                                 pagechange(lastPageNo);
                                 break;
                         }
-                        if (receiceData) {
-                            receiceData.pageNo = currentPageNo;
-                        }
                     }, false);
                 }
             }
@@ -204,24 +209,6 @@
         }
     }
 
-    function setClickEvent(data) {
-        document.querySelector('#hupumoyu-postDetail').addEventListener('click', (e) => {
-            const target = e.target;
-            const id = target.dataset.id;
-            if (id) {
-                switch (id) {
-                    case 'open':
-                        vscode.postMessage({
-                            command: 'openBrowser',
-                            content: data.postUrl,
-                        });
-                        break;
-                    default:
-                }
-            }
-        });
-    }
-
     // 添加隐藏图片覆盖样式
     function addImgHideCoverClass(selectorList) {
         let aImg = [];
@@ -241,6 +228,7 @@
 
     function setContent(data) {
         console.log('帖子详情---main.js', data);
+        document.querySelector('#fakeContent').style.display = 'none';
         vscode.setState({
             data,
         });
@@ -259,6 +247,15 @@
             </p>
             `;
         oThreadContentDetail.innerHTML = data.postContent || '';
+
+        const oOpen = document.querySelector('[data-id="open"]');
+        oOpen.setAttribute('data-url', data.url);
+        oOpen.onclick = function () {
+            vscode.postMessage({
+                command: 'openBrowser',
+                content: this.getAttribute('data-url'),
+            });
+        };
 
         if (data.postLightReplyContent) {
             oContentLight.querySelector('#lightReplyContent').innerHTML = data.postLightReplyContent;
@@ -296,7 +293,6 @@
         addImgHideCoverClass();
         showPostImgAndVideo(document.querySelectorAll('#hupumoyu-postDetail img,video'));
         rerenderPagination(data);
-        setClickEvent(data);
     }
 
     window.addEventListener('resize', () => {

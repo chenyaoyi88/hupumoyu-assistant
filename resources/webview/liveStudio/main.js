@@ -50,6 +50,24 @@
                 hideLoading();
                 singleMatch(data);
                 break;
+            case 'switchMode':
+                const aContent = document.querySelectorAll('[data-target="content"]');
+                if (data.mode === 'bossComing') {
+                    for (let i = 0; i < aContent.length; i++) {
+                        aContent[i].classList.add('hide-content');
+                    }
+                    const fakeContent = document.querySelector('#fakeContent');
+                    fakeContent.style.display = 'block';
+                    if (!fakeContent.innerHTML) {
+                        fakeContent.innerHTML = 'Hello world!';
+                    }
+                } else {
+                    for (let i = 0; i < aContent.length; i++) {
+                        aContent[i].classList.remove('hide-content');
+                    }
+                    document.querySelector('#fakeContent').style.display = 'none';
+                }
+                break;
             default:
                 hideLoading();
         }
