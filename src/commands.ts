@@ -145,6 +145,11 @@ export default class IndexCommands {
                             item['panel'].title = `hello-world${i}.js`;
                         }
                     }
+                    for (let webview in IndexCommands.webviewObject) {
+                        if (webview === 'boxscore' || webview === 'standing' && IndexCommands.webviewObject[webview]) {
+                            IndexCommands.webviewObject[webview]?.dispose();
+                        }
+                    }
                     commands.executeCommand('workbench.view.explorer');
                 } else {
                     // 当前不可见，切换为可见
@@ -161,25 +166,7 @@ export default class IndexCommands {
                     }
                     commands.executeCommand('workbench.view.extension.hupuMoyuTreeView');
                 }
-            } else {
-                // 步行街未启动 TODO
             }
-
-            // // 关闭直播间
-            // LiveStudioWebView.forceCloseWebview();
-            // // 关闭步行街打开的帖子
-            // PostDetailWebView.forceCloseWebview();
-
-            // for (let webview in IndexCommands.webviewObject) {
-            //     if (IndexCommands.webviewObject[webview]) {
-            //         IndexCommands.webviewObject[webview]?.dispose();
-            //     }
-            // }
-
-            // // 如果左侧的板块的可见的，则切换到资源管理器界面
-            // if (NBATreeView?._treeView?.visible || BxjTreeView?._webView?.visible) {
-            //     commands.executeCommand('workbench.view.explorer');
-            // }
         });
         context.subscriptions.push(bossComing);
 

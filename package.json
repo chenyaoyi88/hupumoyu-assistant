@@ -257,7 +257,6 @@
 	"dependencies": {
 		"@types/cheerio": "^0.22.31",
 		"cheerio": "^1.0.0-rc.10",
-		"open": "^8.4.0",
 		"request": "^2.88.2"
 	},
 	"repository": {

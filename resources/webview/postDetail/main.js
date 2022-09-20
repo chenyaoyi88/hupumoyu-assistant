@@ -240,22 +240,13 @@
 
         oTitle.innerHTML =
             `
-            <p>${data.title || ''}<a style="margin: 0 5px;" href="javascript;" data-id="open">浏览器打开</a></p>
+            <p>${data.title || ''}<a style="margin: 0 5px;" href="${data.url}" target="_blank">浏览器打开</a></p>
             <p>
                 <a href="javascript;">${data.author || ''}</a>
                 <span>${data.createTime || ''}</span>
             </p>
             `;
         oThreadContentDetail.innerHTML = data.postContent || '';
-
-        const oOpen = document.querySelector('[data-id="open"]');
-        oOpen.setAttribute('data-url', data.url);
-        oOpen.onclick = function () {
-            vscode.postMessage({
-                command: 'openBrowser',
-                content: this.getAttribute('data-url'),
-            });
-        };
 
         if (data.postLightReplyContent) {
             oContentLight.querySelector('#lightReplyContent').innerHTML = data.postLightReplyContent;
