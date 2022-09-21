@@ -50,13 +50,18 @@ body {
 }
 
 .hupumoyu-module-list-box .hupumoyu-module-list .hupumoyu-module-item {
-	margin-bottom: 5px;
+	margin-bottom: 4px;
 	cursor: pointer;
+	line-height: 1.4;
 }
 
 .hupumoyu-module-list .hupumoyu-module-item .hupumoyu-module-item-desc {
 	opacity: 0.6;
 	padding: 0 8px;
+}
+
+.hupumoyu-module-list .hupumoyu-module-item .hupumoyu-module-item-link {
+	vertical-align: middle;
 }
 
 .hupumoyu-module-page {
