@@ -2,12 +2,13 @@
 // It cannot access the main VS Code APIs directly.
 (function () {
     const vscode = acquireVsCodeApi();
-    // const oldState = (vscode.getState());
+    const oldState = (vscode.getState());
 
-    // // 如果之前有值，则回填
-    // if (oldState && oldState.data) {
-    //     console.log(oldState);
-    // }
+    // 如果之前有值，则回填
+    if (oldState && oldState.data) {
+        console.log(oldState);
+    }
+    document.querySelector('#fakeContent').style.display = 'none';
 
     setModuleListHeight();
 

@@ -50,6 +50,7 @@ export const hupuQueryLiveTextList = async ({
 }: LiveOptions) => {
     try {
         const res = await req(`https://live-api.liangle.com/1/7.5.60/live/queryLiveTextList?matchId=${matchId}&liveActivityKeyStr=${liveActivityKeyStr}`, {
+            resJson: true,
             tipsName: '3-直播间文字',
         });
         return res;
@@ -186,7 +187,7 @@ export const hupuBoxscore = async (options: any): Promise<any> => {
 export const hupusingleMatch = async (matchId: string) => {
     try {
         const res = await req(`https://games.mobileapi.hupu.com/1/7.5.60/basketballapi/singleMatch?matchId=${matchId}`, {
-            resJson: false,
+            resJson: true,
             tipsName: '10-当场比赛',
         });
         return res;

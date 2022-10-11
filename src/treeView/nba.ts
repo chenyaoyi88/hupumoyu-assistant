@@ -299,18 +299,21 @@ function formatScheduleListData(context: vscode.ExtensionContext, data: any) {
                     }
                     const label = `${itemMatch.awayBigScore === null ? '' : `（${itemMatch.awayBigScore}）`}${itemMatch.awayTeamName || ''} ${itemMatch.awayScore || '-'} : ${itemMatch.homeScore || '-'} ${itemMatch.homeTeamName || ''}${itemMatch.homeBigScore === null ? '' : `（${itemMatch.homeBigScore}）`}`;
                     const description = matchDesc(itemMatch);
+
                     json[itemMatch.matchId] = {
                         label,
                         collapsibleState: 0,
                         description,
                         tooltip: `${label} ${description}`,
-                        iconPath: itemMatch.matchStatus === 'INPROGRESS' ? context.asAbsolutePath(path.join('resources', 'images', 'basketball_ing.svg')) : null,
                         command: {
                             title: '',
                             arguments: [itemMatch],
                         },
                         contextValue: 'singleMatch',
                     };
+                    if (itemMatch.matchStatus === 'INPROGRESS') {
+                        json[itemMatch.matchId].iconPath = context.asAbsolutePath(path.join('resources', 'images', 'basketball_ing.svg'));
+                    }
                 }
                 if (matchListLabel.length) {
                     json.label = currentDate === matchDate ? `【${matchListLabel}】${matchDate}（今天）` : `【${matchListLabel}】${matchDate}`;
