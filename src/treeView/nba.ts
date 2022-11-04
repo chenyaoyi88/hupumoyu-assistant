@@ -169,7 +169,9 @@ export default class NBATreeView {
                         const arr = [];
                         const tree = element;
                         for (let item in tree) {
-                            arr.push(tree[item]);
+                            if(typeof tree[item] === 'object') {
+                                arr.push(tree[item]);
+                            }
                         }
                         return arr;
                     } else {
@@ -191,9 +193,15 @@ export default class NBATreeView {
                     }
                 },
                 getTreeItem: (element: any) => {
-                    let treeItem = null;
+                    let treeItem = {};
                     if (typeof element === 'object') {
-                        treeItem = element;
+                        treeItem = {
+                            label: element.label,
+                            collapsibleState: element.collapsibleState,
+                            description: element.description,
+                            tooltip: element.tooltip,
+                            contextValue: element.contextValue,
+                        };
                     }
                     return treeItem;
                 },
