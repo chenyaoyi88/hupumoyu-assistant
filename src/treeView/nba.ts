@@ -224,17 +224,19 @@ export default class NBATreeView {
         const clickScoreboxCommand = vscode.commands.registerCommand(
             'nbaTreeView.dataDetail', (e) => {
                 const data = e.command.arguments[0];
-                data.title = `${data.awayTeamName} ${data.awayScore || '-'} : ${data.homeScore || '-'} ${data.homeTeamName}`;
-
-                this.boxscore.webview?.createOrShow(
-                    context,
-                    'boxscore',
-                    data,
-                    (isReload: boolean) => {
-                        this.getBoxscoreData(data, isReload);
-                    }
-                );
-
+                if (data.matchStatus === 'NOTSTARTED') {
+                    vscode.window.showInformationMessage('比赛未开始，暂时无法赛事数据');
+                } else {
+                    data.title = `${data.awayTeamName} ${data.awayScore || '-'} : ${data.homeScore || '-'} ${data.homeTeamName}`;
+                    this.boxscore.webview?.createOrShow(
+                        context,
+                        'boxscore',
+                        data,
+                        (isReload: boolean) => {
+                            this.getBoxscoreData(data, isReload);
+                        }
+                    );
+                }
             },
         );
 
