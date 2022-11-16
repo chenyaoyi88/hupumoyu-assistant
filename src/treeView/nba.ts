@@ -169,7 +169,7 @@ export default class NBATreeView {
                         const arr = [];
                         const tree = element;
                         for (let item in tree) {
-                            if(typeof tree[item] === 'object') {
+                            if (typeof tree[item] === 'object') {
                                 arr.push(tree[item]);
                             }
                         }
@@ -193,7 +193,7 @@ export default class NBATreeView {
                     }
                 },
                 getTreeItem: (element: any) => {
-                    let treeItem = {};
+                    let treeItem: any = {};
                     if (typeof element === 'object') {
                         treeItem = {
                             label: element.label,
@@ -202,6 +202,9 @@ export default class NBATreeView {
                             tooltip: element.tooltip,
                             contextValue: element.contextValue,
                         };
+                        if (element.iconPath) {
+                            treeItem.iconPath = element.iconPath;
+                        }
                     }
                     return treeItem;
                 },
