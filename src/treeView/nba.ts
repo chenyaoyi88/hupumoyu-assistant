@@ -231,14 +231,14 @@ export default class NBATreeView {
                         <div class="team_vs_box">
                             <div class="team_a" style="margin-top: 20px;">
                                 <div class="img">
-                                    <a target="_blank" href="https://nba.hupu.com/teams/bucks"><img alt="${resPlayStats.awayTeamLogo}"
+                                    <a target="_blank" href="https://nba.hupu.com/teams"><img alt="${resPlayStats.awayTeamLogo}"
                                             src="${data.awayTeamLogo}" height="95"
                                             width="95"></a>
                                 </div>
                                 <div class="message">
                                     <h2>${data.awayScore}</h2>
                                     <p>
-                                        <a href="https://nba.hupu.com/teams/bucks" target="_blank">${data.awayTeamName}</a>
+                                        <a href="https://nba.hupu.com/teams" target="_blank">${data.awayTeamName}</a>
                                     </p>
                                     <div>
                                         客队</div>
@@ -247,14 +247,14 @@ export default class NBATreeView {
                             <div class="team_num">${data.frontEndMatchStatus.desc}</div>
                             <div class="team_b" style="margin-top: 20px;">
                                 <div class="img">
-                                    <a target="_blank" href="https://nba.hupu.com/teams/pacers"><img alt="${resPlayStats.homeTeamLogo}"
+                                    <a target="_blank" href="https://nba.hupu.com/teams"><img alt="${resPlayStats.homeTeamLogo}"
                                             src="${data.homeTeamLogo}" height="95"
                                             width="95"></a>
                                 </div>
                                 <div class="message">
                                     <h2>${data.homeScore}</h2>
                                     <p>
-                                        <a href="https://nba.hupu.com/teams/pacers" target="_blank">${data.homeTeamName}</a>
+                                        <a href="https://nba.hupu.com/teams" target="_blank">${data.homeTeamName}</a>
                                     </p>
                                     <div>
                                         主队</div>
