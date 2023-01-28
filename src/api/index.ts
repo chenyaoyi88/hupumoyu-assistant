@@ -239,3 +239,29 @@ export const hupuStats = async (type: string) => {
         return null;
     }
 };
+
+// 球员数据
+export const hupuPlayerMatchStats = async (matchId: string) => {
+    try {
+        const res = await req(`https://games.mobileapi.hupu.com/1/7.5.60/basketballapi/playerMatchStats?matchId=${matchId}`, {
+            resJson: true,
+            tipsName: '13-球员数据',
+        });
+        return res;
+    } catch (error) {
+        return null;
+    }
+};
+
+// 每节数据
+export const hupuTeamMatchQuarterStats = async (matchId: string) => {
+    try {
+        const res = await req(`https://games.mobileapi.hupu.com/1/7.5.60/basketballapi/teamMatchQuarterStats?matchId=${matchId}`, {
+            resJson: true,
+            tipsName: '14-每节数据',
+        });
+        return res;
+    } catch (error) {
+        return null;
+    }
+};
