@@ -68,7 +68,7 @@
 				"category": "虎扑摸鱼-排名"
 			},
 			{
-				"command": "nbaTreeView.dataDetail",
+				"command": "nbaTreeView.matchData",
 				"title": "数据",
 				"icon": {
 					"dark": "resources/images/matchData/dark.svg",
@@ -218,7 +218,7 @@
 			],
 			"view/item/context": [
 				{
-					"command": "nbaTreeView.dataDetail",
+					"command": "nbaTreeView.matchData",
 					"when": "view == nbaTreeView && viewItem == singleMatch",
 					"group": "inline"
 				},

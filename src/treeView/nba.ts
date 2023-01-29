@@ -12,7 +12,6 @@ import {
 import LiveStudioWebView from '../webview/liveStudio';
 import CommonWebView from '../webview/common';
 import IndexCommands from '../commands';
-
 interface BoxscoreWebView {
     webview: CommonWebView | null;
     timer: ReturnType<typeof setTimeout> | any;
@@ -34,10 +33,12 @@ export default class NBATreeView {
     _onDidChangeTreeData: vscode.EventEmitter<any> = new vscode.EventEmitter();
     // 刷新控制器
     scheduleListTimer: NodeJS.Timer | any = null;
+    // 刷新控制器
+    matchListInStatusBarTimer: NodeJS.Timer | any = null;
     // 接口返回的数据
     resHupuScheduleList: any = {};
     // 每10秒刷新一次
-    scheduleListRefreshDuration: number = 1000 * 10;
+    updateDataDuration: number = 1000 * 10;
 
     public static _treeView?: vscode.TreeView<any>;
 
@@ -51,7 +52,7 @@ export default class NBATreeView {
             } else {
                 this.scheduleListTimer = setTimeout(() => {
                     this._onDidChangeTreeData.fire(null);
-                }, this.scheduleListRefreshDuration);
+                }, this.updateDataDuration);
             }
         }
     }
@@ -124,45 +125,6 @@ export default class NBATreeView {
                 });
             }
         }, 100);
-    }
-
-    resetPlayerTr(data: any, item: any) {
-        let statsLink = `<a href="${`https://games.mobileapi.hupu.com/h5/showplayer?matchId=${data.matchId}&playerId=${item.playerId}&night=0`}" target="_blank"  style="text-decoration: none;">${item.name}${item.starter === 1 ? '<span style="text-decoration: none; color: #ffffff;">（首发）</span>' : ''}</a>`;
-        if (item.playerId.includes('team-stats') || item.playerId.includes('team-shooting')) {
-            statsLink = `<span style="text-decoration: none; color: #ffffff;">${item.alias}</span>`;
-        }
-        return `
-        <tr style="background-color: rgb(255, 255, 255);">
-            <td class="tdw-1 left">${statsLink}</td>
-            <td>${item.position === null ? '-' : item.position}</td>
-            <td>${item.mins === null ? '-' : item.mins}</td>
-            <td>${item.pts === null ? '-' : item.pts}</td>
-            <td>${item.reb === null ? '-' : item.reb}</td>
-            <td>${item.asts === null ? '-' : item.asts}</td>
-            <td>${item.twoPoints === null ? '-' : item.twoPoints}</td>
-            <td>${item.threePoints === null ? '-' : item.threePoints}</td>
-            <td>${item.ft === null ? '-' : item.ft}</td>
-            <td>${item.efgp === null ? '-' : item.efgp}</td>
-            <td>${item.tsp === null ? '-' : item.tsp}</td>
-            <td>${item.stl === null ? '-' : item.stl}</td>
-            <td>${item.to === null ? '-' : item.to}</td>
-            <td>${item.blk === null ? '-' : item.blk}</td>
-            <td>${item.blkr === null ? '-' : item.blkr}</td>
-            <td>${item.oreb === null ? '-' : item.oreb}</td>
-            <td>${item.dreb === null ? '-' : item.dreb}</td>
-            <td>${item.foulr === null ? '-' : item.foulr}</td>
-            <td>${item.pf === null ? '-' : item.pf}</td>
-            <td>${item.plusMinus === null ? '-' : item.plusMinus}</td>
-        </tr>`;
-    }
-
-    resetStatsData(resPlayStats: any, listName: string) {
-        const teamShootingIndex = resPlayStats[listName].findIndex((item: any) => item.playerId.includes('team-shooting'));
-        const teamShootingItem = resPlayStats[listName].splice(teamShootingIndex, 1);
-        resPlayStats[listName].push(...teamShootingItem);
-        const teamStatsIndex = resPlayStats[listName].findIndex((item: any) => item.playerId.includes('team-stats'));
-        const teamStatsItem = resPlayStats[listName].splice(teamStatsIndex, 1);
-        resPlayStats[listName].push(...teamStatsItem);
     }
 
     /**
@@ -364,8 +326,138 @@ export default class NBATreeView {
                 data: res,
             });
         }
+    }
 
-        // const res = await hupuBoxscore(data);
+    async updateMatchListInStatusBar(context: vscode.ExtensionContext, forceUpdate?: boolean) {
+        this.stopUpdateMatchListInStatusBar();
+        if (forceUpdate) {
+            this.getMatchListInStatusBar(context);
+        } else {
+            if (isCurrentGameFinish(this.resHupuScheduleList)) {
+                // 当天比赛未开始或已全部结束
+            } else {
+                // 当天有比赛未结束
+                this.matchListInStatusBarTimer = setTimeout(() => {
+                    this.getMatchListInStatusBar(context);
+                }, this.updateDataDuration);
+            }
+        }
+    }
+
+    async getMatchListInStatusBar(context: vscode.ExtensionContext) {
+        let res: any = await hupuScheduleList();
+        this.resHupuScheduleList = JSON.parse(JSON.stringify(res));
+        let aCurrentDayMathList: any = [];
+        const oDate = new Date();
+        const localCurrentDate = `${oDate.getFullYear()}${`${oDate.getMonth() + 1}`.padStart(2, '0')}${`${oDate.getDate()}`.padStart(2, '0')}`;
+        if (res && res.result && res.result.gameList) {
+            for (let item of res.result.gameList) {
+                if (item.day === localCurrentDate) {
+                    aCurrentDayMathList = item.matchList;
+                }
+            }
+            if (aCurrentDayMathList.length) {
+                for (let itemMatch of aCurrentDayMathList) {
+                    itemMatch.label = `${itemMatch.awayBigScore === null ? '' : `（${itemMatch.awayBigScore}）`}${itemMatch.awayTeamName || ''} ${itemMatch.awayScore || '-'} : ${itemMatch.homeScore || '-'} ${itemMatch.homeTeamName || ''}${itemMatch.homeBigScore === null ? '' : `（${itemMatch.homeBigScore}）`}`;
+                    itemMatch.value = itemMatch.matchId;
+                    itemMatch.description = itemMatch.frontEndMatchStatus.desc;
+                    itemMatch.index = itemMatch.matchStatus === 'INPROGRESS' ? 1 : 0;
+                    itemMatch.buttons = [{
+                        iconPath: {
+                            dark: vscode.Uri.file(context.asAbsolutePath(path.join('resources', 'images', 'liveStudio', 'dark.svg'))),
+                            light: vscode.Uri.file(context.asAbsolutePath(path.join('resources', 'images', 'liveStudio', 'light.svg'))),
+                        },
+                        tooltip: '直播间',
+                        name: 'liveStudio',
+                    }, {
+                        iconPath: {
+                            dark: vscode.Uri.file(context.asAbsolutePath(path.join('resources', 'images', 'matchData', 'dark.svg'))),
+                            light: vscode.Uri.file(context.asAbsolutePath(path.join('resources', 'images', 'matchData', 'light.svg'))),
+                        },
+                        tooltip: '数据',
+                        name: 'matchData',
+                    }];
+                }
+                aCurrentDayMathList.sort((a: any, b: any) => b.index - a.index);
+                let sCurrentMathListHor = '';
+                let sCurrentMathListVer = '';
+                for (let itemMatch of aCurrentDayMathList) {
+                    sCurrentMathListHor += `${itemMatch.label}（${itemMatch.description}） `;
+                    sCurrentMathListVer += `${itemMatch.label}（${itemMatch.description}）\n`;
+                }
+                const sCurrentMathListItem = vscode.window.createStatusBarItem();
+                const command = 'nbaTreeView.currentMathListItem';
+                sCurrentMathListItem.command = command;
+                sCurrentMathListItem.text = sCurrentMathListHor;
+                sCurrentMathListItem.tooltip = sCurrentMathListVer;
+                context.subscriptions.push(sCurrentMathListItem);
+                context.subscriptions.push(vscode.commands.registerCommand(
+                    command,
+                    async () => {
+                        const quickPick = vscode.window.createQuickPick();
+                        quickPick.title = quickPick.placeholder = '请选中想要看文字直播的比赛';
+                        quickPick.items = aCurrentDayMathList;
+                        quickPick.onDidTriggerItemButton((selection: { item: any, button: any }) => {
+                            if (selection && selection.button) {
+                                if (selection.button.name === 'liveStudio') {
+                                    this.gotoLiveStudio(context, selection.item);
+                                }
+                                if (selection.button.name === 'matchData') {
+                                    this.gotoMatchData(context, selection.item);
+                                }
+                                quickPick.hide();
+                            }
+                        });
+                        quickPick.onDidHide(() => quickPick.dispose());
+                        quickPick.show();
+                    },
+                ));
+                sCurrentMathListItem.show();
+            }
+        }
+    }
+
+    stopUpdateMatchListInStatusBar() {
+        clearTimeout(this.matchListInStatusBarTimer);
+    }
+
+    resetPlayerTr(data: any, item: any) {
+        let statsLink = `<a href="${`https://games.mobileapi.hupu.com/h5/showplayer?matchId=${data.matchId}&playerId=${item.playerId}&night=0`}" target="_blank"  style="text-decoration: none;">${item.name}${item.starter === 1 ? '<span style="text-decoration: none; color: #ffffff;">（首发）</span>' : ''}</a>`;
+        if (item.playerId.includes('team-stats') || item.playerId.includes('team-shooting')) {
+            statsLink = `<span style="text-decoration: none; color: #ffffff;">${item.alias}</span>`;
+        }
+        return `
+        <tr style="background-color: rgb(255, 255, 255);">
+            <td class="tdw-1 left">${statsLink}</td>
+            <td>${item.position === null ? '-' : item.position}</td>
+            <td>${item.mins === null ? '-' : item.mins}</td>
+            <td>${item.pts === null ? '-' : item.pts}</td>
+            <td>${item.reb === null ? '-' : item.reb}</td>
+            <td>${item.asts === null ? '-' : item.asts}</td>
+            <td>${item.twoPoints === null ? '-' : item.twoPoints}</td>
+            <td>${item.threePoints === null ? '-' : item.threePoints}</td>
+            <td>${item.ft === null ? '-' : item.ft}</td>
+            <td>${item.efgp === null ? '-' : item.efgp}</td>
+            <td>${item.tsp === null ? '-' : item.tsp}</td>
+            <td>${item.stl === null ? '-' : item.stl}</td>
+            <td>${item.to === null ? '-' : item.to}</td>
+            <td>${item.blk === null ? '-' : item.blk}</td>
+            <td>${item.blkr === null ? '-' : item.blkr}</td>
+            <td>${item.oreb === null ? '-' : item.oreb}</td>
+            <td>${item.dreb === null ? '-' : item.dreb}</td>
+            <td>${item.foulr === null ? '-' : item.foulr}</td>
+            <td>${item.pf === null ? '-' : item.pf}</td>
+            <td>${item.plusMinus === null ? '-' : item.plusMinus}</td>
+        </tr>`;
+    }
+
+    resetStatsData(resPlayStats: any, listName: string) {
+        const teamShootingIndex = resPlayStats[listName].findIndex((item: any) => item.playerId.includes('team-shooting'));
+        const teamShootingItem = resPlayStats[listName].splice(teamShootingIndex, 1);
+        resPlayStats[listName].push(...teamShootingItem);
+        const teamStatsIndex = resPlayStats[listName].findIndex((item: any) => item.playerId.includes('team-stats'));
+        const teamStatsItem = resPlayStats[listName].splice(teamStatsIndex, 1);
+        resPlayStats[listName].push(...teamStatsItem);
     }
 
     /**
@@ -383,8 +475,37 @@ export default class NBATreeView {
         }
     }
 
+    gotoLiveStudio(context: vscode.ExtensionContext, data: any) {
+        if (data.matchStatus === 'COMPLETED') {
+            // 比赛已结束，不让看直播间
+            vscode.window.showInformationMessage('比赛结束了，直播间已关闭');
+        } else {
+            // 比赛进行中/未开始
+            LiveStudioWebView.createOrShow(context, data);
+        }
+    }
+
+    gotoMatchData(context: vscode.ExtensionContext, data: any) {
+        if (data.matchStatus === 'NOTSTARTED') {
+            vscode.window.showInformationMessage('比赛未开始，暂时无法查看赛事数据');
+        } else {
+            data.title = `${data.awayTeamName} ${data.awayScore || '-'} : ${data.homeScore || '-'} ${data.homeTeamName}`;
+            this.boxscore.webview?.createOrShow(
+                context,
+                'boxscore',
+                data,
+                (isReload: boolean) => {
+                    this.getBoxscoreData(data, isReload);
+                }
+            );
+        }
+    }
+
     constructor(context: vscode.ExtensionContext) {
+        this.updateMatchListInStatusBar(context, true);
+        // 插件激活的时候触发
         const treeView = vscode.window.createTreeView('nbaTreeView', {
+            // 切换到插件页面的时候触发
             treeDataProvider: {
                 onDidChangeTreeData: this._onDidChangeTreeData.event,
                 getChildren: async (element: any) => {
@@ -450,21 +571,8 @@ export default class NBATreeView {
 
         // 点击当场赛事数据
         const clickScoreboxCommand = vscode.commands.registerCommand(
-            'nbaTreeView.dataDetail', (e) => {
-                const data = e.command.arguments[0];
-                if (data.matchStatus === 'NOTSTARTED') {
-                    vscode.window.showInformationMessage('比赛未开始，暂时无法赛事数据');
-                } else {
-                    data.title = `${data.awayTeamName} ${data.awayScore || '-'} : ${data.homeScore || '-'} ${data.homeTeamName}`;
-                    this.boxscore.webview?.createOrShow(
-                        context,
-                        'boxscore',
-                        data,
-                        (isReload: boolean) => {
-                            this.getBoxscoreData(data, isReload);
-                        }
-                    );
-                }
+            'nbaTreeView.matchData', (e) => {
+                this.gotoMatchData(context, e.command.arguments[0]);
             },
         );
 
@@ -472,14 +580,7 @@ export default class NBATreeView {
         const clickLiveStudioCommand = vscode.commands.registerCommand(
             'nbaTreeView.liveStudio',
             async (e: any) => {
-                const data = e.command.arguments[0];
-                if (data.matchStatus === 'COMPLETED') {
-                    // 比赛已结束，不让看直播间
-                    vscode.window.showInformationMessage('比赛结束了，直播间已关闭');
-                } else {
-                    // 比赛进行中/未开始
-                    LiveStudioWebView.createOrShow(context, data);
-                }
+                this.gotoLiveStudio(context, e.command.arguments[0]);
             },
         );
 
