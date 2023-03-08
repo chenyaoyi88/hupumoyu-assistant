@@ -82,17 +82,28 @@ export const hupuPostDetail = async (url: string) => {
             resJson: false,
             tipsName: '6-帖子详情',
         });
-        const $ = cheerio.load(body);
+        const replaceClassNameArr: string[] = [
+            'post-user_post-user-comp-info-top-name',
+            'post-user_post-user-comp-info-top-time',
+            'index_name',
+            'post-wrapper_light',
+            'post-wrapper_gray'
+        ];
+        let formatBody = body;
+        replaceClassNameArr.forEach(className => {
+            formatBody = formatBody.replace(new RegExp(`${className}([0-9a-zA-Z_]+)`), className);
+        });
+        const $ = cheerio.load(formatBody);
         const res = {
-            author: $('.post-user-comp-info-top-name').text() || '',
-            createTime: $('.post-user-comp-info-top-time').text() || '',
-            title: $('.bbs-post-web-main-title .name').text() || '',
-            url: postUrl,
-            postContent: $('.main-post-info .bbs-thread-comp.main-thread').html(),
-            postLightReplyContent: $('.bbs-post-wrapper.light .bbs-post-wrapper-content').html(),
-            postGrayReplyContent: $('.bbs-post-wrapper.gray .bbs-post-wrapper-content').html(),
-            pagination: $('.pagination.bottom .hupu-rc-pagination').html(),
+            author: $('.post-user_post-user-comp-info-top-name').text() || '',
+            createTime: $('.post-user_post-user-comp-info-top-time').text() || '',
+            title: $('.index_name').text() || '',
+            postContent: $('.bbs-thread-comp.main-thread').html(),
+            postLightReplyContent: $('.post-wrapper_light').html(),
+            postGrayReplyContent: $('.post-wrapper_gray').html(),
+            pagination: $('.hupu-rc-pagination').html(),
             noContent: $('.none-content').html(),
+            url: postUrl,
             tid: url.match(/\d+/)?.[0],
         };
 

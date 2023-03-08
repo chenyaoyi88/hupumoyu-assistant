@@ -413,6 +413,7 @@ export default class NBATreeView {
                     },
                 ));
                 sCurrentMathListItem.show();
+                this.updateMatchListInStatusBar(context);
             }
         }
     }
