@@ -80,15 +80,16 @@ export const hupuPostDetail = async (posturl: string) => {
             resJson: false,
             tipsName: '6-帖子详情',
         });
+        
         const $ = cheerio.load(body);
         const res = {
-            userName: $('.post-user-comp-info-top-name').text() || '',
-            userTime: $('.post-user-comp-info-top-time').text() || '',
-            userTitle: $('.bbs-post-web-main-title .name').text() || '',
-            postContent: $('.main-post-info .bbs-thread-comp.main-thread').html(),
-            postLightReplyContent: $('.bbs-post-wrapper.light .bbs-post-wrapper-content').html(),
-            postGrayReplyContent: $('.bbs-post-wrapper.gray .bbs-post-wrapper-content').html(),
-            pagination: $('.pagination.bottom .hupu-rc-pagination').html(),
+            userName: $("a[class*='post-user_post-user-comp-info-top-name']").text() || '',
+            userTime: $("span[class*='post-user_post-user-comp-info-top-time']").text() || '',
+            userTitle: $("h1[class*='post-index_name']").text() || '',
+            postContent: $('.bbs-thread-comp.main-thread').html(),
+            postLightReplyContent: $("div[class*='post-wrapper_light']").html(),
+            postGrayReplyContent: $("div[class*='post-wrapper_gray']").html(),
+            pagination: $('.hupu-rc-pagination').html(),
             noContent: $('.none-content').html(),
             tid: posturl.match(/\d+/)?.[0],
         };
