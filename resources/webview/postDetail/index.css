@@ -95,18 +95,18 @@
     display: block;
 }
 
-.bbs-thread-comp-container {
+div[class*='bbs-thread-comp-container']{
     padding: 10px;
     margin: 15px;
     border: 1px solid;
     background-color: initial !important;
 }
 
-.bbs-thread-comp-container .reply-thread {
+div[class*='bbs-thread-comp-container'] div[class*='reply-thread'] {
     margin-top: 10px;
 }
 
-.user-base-info {
+div[class*='user-base-info'] {
     margin-bottom: 10px;
 }
 
