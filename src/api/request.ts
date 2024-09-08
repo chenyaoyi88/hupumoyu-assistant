@@ -15,11 +15,13 @@ export default function req(url: string, options?: { resJson?: Boolean, tipsName
             if (!err && response.statusCode === 200) {
                 let resData = {};
                 if (options?.resJson === undefined || options?.resJson) {
+                    // 转成json格式
                     resData = JSON.parse(body);
                     if (_context?.extensionMode === 2) {
                         console.log(options?.tipsName, '接口响应1', resData);
                     }
                 } else {
+                    // 文本格式，一般是返回的html网页内容
                     resData = body;
                     if (_context?.extensionMode === 2) {
                         console.log(options?.tipsName, '接口响应2');

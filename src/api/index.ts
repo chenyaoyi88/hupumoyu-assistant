@@ -137,29 +137,41 @@ export const hupuPostReply = async ({
 };
 
 // 论坛版块
-export const hupuBxjModule = async (postPageName: string) => {
+export const hupuBxjModule = async (topicId: string) => {
     try {
-        const url = `https://bbs.hupu.com/${postPageName}`;
+        const url = `https://m.hupu.com/zone/${topicId}`;
         const body: any = await req(url, {
             resJson: false,
             tipsName: '8-论坛版块',
         });
-        const startStr = 'window.$$data=';
-        const endStr = '</script>';
-        const startIndex = body.indexOf(startStr);
-        const resStart = body.substring(startIndex + startStr.length);
-        const endIndex = resStart.indexOf(endStr);
-        const res1 = resStart.substring(0, endIndex);
-        const res = JSON.parse(res1);
-
+        const $ = cheerio.load(body);
+        const sResData: any = $('#__NEXT_DATA__').html() || '';
+        const resData = sResData ? JSON.parse(sResData) : {};
+        const retData = resData.props.pageProps.data;
         if (_context?.extensionMode === 2) {
-            console.log('8-论坛版块', res);
+            console.log('8-论坛版块', retData);
         }
-        return res;
+        return retData;
     } catch (error) {
         return {};
     }
 };
+
+// 获取当前板块列表
+export const getModuleListByTopicId = async (options: {topicId: number, page: number, cursor: string}) => {
+    try {
+        console.log('请求参数', options);
+        const url = `https://m.hupu.com/api/v2/bbs/topicThreads?topicId=${options.topicId}&page=${options.page}&cursor=${options.cursor}`;
+        const res: any = await req(url, {
+            resJson: true,
+            tipsName: '100-获取当前板块列表',
+        });
+        return res.data;
+    } catch (error) {
+        return {};
+    }
+};
+
 
 // 比赛数据
 export const hupuBoxscore = async (options: any): Promise<any> => {
