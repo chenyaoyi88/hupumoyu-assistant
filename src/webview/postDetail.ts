@@ -110,7 +110,6 @@ export default class PostDetailWebView {
         this.hideLoading();
         if (res) {
             res.showPostImgs = this._context.globalState.get('bxj-settings-showPostImgs');
-            res.pageNo = data.pageNo;
             // 发送消息到 webview 执行
             PostDetailWebView.resPostDetail = res;
             PostDetailWebView.panel.webview.postMessage({
@@ -177,10 +176,8 @@ export default class PostDetailWebView {
                 // 配置项
                 getWebviewOptions(context.extensionUri),
             );
-
             // 渲染 webview 
             PostDetailWebView.panel.webview.html = this._getHtmlForWebview(PostDetailWebView.panel.webview, context.extensionUri);
-
             PostDetailWebView.currentPanel = new PostDetailWebView(context, PostDetailWebView.panel, data);
         }
         PostDetailWebView.currentPanel.getPostDetailContent({
@@ -250,6 +247,19 @@ function getWebviewOptions(extensionUri: vscode.Uri): vscode.WebviewOptions {
         // 限制只能从指定目录加载资源
         localResourceRoots: [extensionUri],
     };
+}
+
+interface CurrentSelectTopicInfo {
+    // 板块名称
+    label: string;
+    // 板块id
+    topicId: number;
+    // 当前页
+    page?: number;
+    // 描述，例如多少热度
+    nextCursor?: string;
+    // 当前页的数据
+    list?: Array<any>;
 }
 
 interface PostDetailInitData {

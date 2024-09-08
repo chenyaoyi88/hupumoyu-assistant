@@ -77,35 +77,28 @@ export const hupuQueryHotLineList = async ({
 // 帖子详情
 export const hupuPostDetail = async (url: string) => {
     try {
-        const postUrl: string = url.includes('http') ? url : `https://bbs.hupu.com${url}`;
-        const body: any = await req(postUrl, {
+        const body: any = await req(url, {
             resJson: false,
             tipsName: '6-帖子详情',
         });
-        const replaceClassNameArr: string[] = [
-            'post-user_post-user-comp-info-top-name',
-            'post-user_post-user-comp-info-top-time',
-            'index_name',
-            'post-wrapper_light',
-            'post-wrapper_gray'
-        ];
-        let formatBody = body;
-        replaceClassNameArr.forEach(className => {
-            formatBody = formatBody.replace(new RegExp(`${className}([0-9a-zA-Z_]+)`), className);
-        });
-        const $ = cheerio.load(formatBody);
+        const $ = cheerio.load(body);
+        const sResData: any = $('#__NEXT_DATA__').html() || '';
+        const resData = sResData ? JSON.parse(sResData) : {};
+        const retData = resData.props.pageProps;
         const res = {
-            author: $('.post-user_post-user-comp-info-top-name').text() || '',
-            createTime: $('.post-user_post-user-comp-info-top-time').text() || '',
-            title: $('.index_name').text() || '',
-            postContent: $('.bbs-thread-comp.main-thread').html(),
-            postLightReplyContent: $('.post-wrapper_light').html(),
-            postGrayReplyContent: $('.post-wrapper_gray').html(),
-            pagination: $('.hupu-rc-pagination').html(),
-            noContent: $('.none-content').html(),
-            url: postUrl,
-            tid: url.match(/\d+/)?.[0],
+            author: retData.threadData.data.moduleConfigList.user.moduleContent.name || '',
+            createTime: retData.threadData.data.moduleConfigList.user.moduleContent.time || '',
+            title: retData.threadData.data.moduleConfigList.title.moduleContent.title || '',
+            postContent: retData.threadData.data.moduleConfigList.content.moduleContent.content,
+            postLightReplyContent: retData.initialRepliesData.lightReplies,
+            postGrayReplyContent: retData.initialRepliesData.initialReplies,
+            // pagination: $('.hupu-rc-pagination').html(),
+            // noContent: $('.none-content').html(),
+            url,
+            tid: retData.threadData.data.basicInfo.tid,
         };
+
+        console.log(111, res);
 
         if (_context?.extensionMode === 2) {
             console.log('6-帖子详情', res);
@@ -136,11 +129,10 @@ export const hupuPostReply = async ({
     }
 };
 
-// 论坛版块
-export const hupuBxjModule = async (topicId: string) => {
+// 获取所有板块列表
+export const getAllTopicList = async () => {
     try {
-        const url = `https://m.hupu.com/zone/${topicId}`;
-        const body: any = await req(url, {
+        const body: any = await req(`https://m.hupu.com/zone`, {
             resJson: false,
             tipsName: '8-论坛版块',
         });
