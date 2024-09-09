@@ -502,7 +502,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
     }
 
     // 获取所有板块
-    async getAllTopicList () {
+    async getAllTopicList() {
         this.categoriesModule = await getAllTopicList();
     }
 
@@ -536,6 +536,9 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'postSelected':
                     const data = JSON.parse(decodeURIComponent(res.data));
+                    // data.tid = 627929088;
+                    // data.url = 'https://m.hupu.com/bbs/627929088';
+                    // data.title = '【直播】Ning王看解说杯：BSYY绝对的野鸡教练！绝对没看过Ning的复盘';
                     PostDetailWebView.createOrShow(this._context, data);
                     break;
                 case 'switchType':

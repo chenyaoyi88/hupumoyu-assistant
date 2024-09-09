@@ -209,6 +209,15 @@
         }
     }
 
+    function renderImage () {
+        const aImages = document.querySelectorAll('[data_url]');
+        if (aImages.length) {
+            for (let i = 0; aImages.length; i++) {
+                aImages[i].innerHTML = `<div class="bbs-img"><img src="${aImages[i].getAttribute('src')}" /></div>`;
+            }
+        }
+    }
+
     // 添加隐藏图片覆盖样式
     function addImgHideCoverClass(selectorList) {
         let aImg = [];
@@ -280,6 +289,7 @@
         oContent.scrollTo(0, 0);
         window.scrollTo(0, 0);
 
+        renderImage();
         setReplyClick();
         addImgHideCoverClass();
         showPostImgAndVideo(document.querySelectorAll('#hupumoyu-postDetail img,video'));
