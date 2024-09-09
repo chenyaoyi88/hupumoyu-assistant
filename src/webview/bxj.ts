@@ -536,7 +536,17 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'postSelected':
                     const data = JSON.parse(decodeURIComponent(res.data));
-                    PostDetailWebView.createOrShow(this._context, data);
+                    console.log(111, data);
+                    PostDetailWebView.createOrShow(this._context, {
+                        replies: 169,
+                        tid: 627871645,
+                        time: '37分钟前',
+                        title: '大家有没有感觉隔壁在模仿你扑啊',
+                        type: '0',
+                        url: 'https://m.hupu.com/bbs/627871645.html',
+                        username: '一段小历史',
+                    });
+                    // PostDetailWebView.createOrShow(this._context, data);
                     break;
                 case 'switchType':
                     // this.switchPostType(this._context, this.currentSelectTopicInfo);
