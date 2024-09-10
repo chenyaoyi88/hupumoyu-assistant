@@ -502,7 +502,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
     }
 
     // 获取所有板块
-    async getAllTopicList () {
+    async getAllTopicList() {
         this.categoriesModule = await getAllTopicList();
     }
 
@@ -536,17 +536,10 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                     break;
                 case 'postSelected':
                     const data = JSON.parse(decodeURIComponent(res.data));
-                    console.log(111, data);
-                    PostDetailWebView.createOrShow(this._context, {
-                        replies: 169,
-                        tid: 627871645,
-                        time: '37分钟前',
-                        title: '大家有没有感觉隔壁在模仿你扑啊',
-                        type: '0',
-                        url: 'https://m.hupu.com/bbs/627871645.html',
-                        username: '一段小历史',
-                    });
-                    // PostDetailWebView.createOrShow(this._context, data);
+                    // data.tid = 627929088;
+                    // data.url = 'https://m.hupu.com/bbs/627929088';
+                    // data.title = '【直播】Ning王看解说杯：BSYY绝对的野鸡教练！绝对没看过Ning的复盘';
+                    PostDetailWebView.createOrShow(this._context, data);
                     break;
                 case 'switchType':
                     // this.switchPostType(this._context, this.currentSelectTopicInfo);

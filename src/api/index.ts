@@ -85,11 +85,19 @@ export const hupuPostDetail = async (url: string) => {
         const sResData: any = $('#__NEXT_DATA__').html() || '';
         const resData = sResData ? JSON.parse(sResData) : {};
         const retData = resData.props.pageProps;
+        let postContent = retData.threadData.data.moduleConfigList.content.moduleContent.content;
+        if (retData.threadData.data.video_info) {
+            postContent += `
+                <div class="header-video-wrapper">
+                    <video class="hupu-post-video" poster="${retData.threadData.data.video_info.img}" src="${retData.threadData.data.video_info.src}" playsinline="" controls=""></video>
+                </div>
+            `;
+        }
         const res = {
             author: retData.threadData.data.moduleConfigList.user.moduleContent.name || '',
             createTime: retData.threadData.data.moduleConfigList.user.moduleContent.time || '',
             title: retData.threadData.data.moduleConfigList.title.moduleContent.title || '',
-            postContent: retData.threadData.data.moduleConfigList.content.moduleContent.content,
+            postContent,
             postLightReplyContent: retData.initialRepliesData.lightReplies,
             postGrayReplyContent: retData.initialRepliesData.initialReplies,
             // pagination: $('.hupu-rc-pagination').html(),
