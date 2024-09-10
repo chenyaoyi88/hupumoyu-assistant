@@ -258,7 +258,48 @@
         oThreadContentDetail.innerHTML = data.postContent || '';
 
         if (data.postLightReplyContent) {
-            oContentLight.querySelector('#lightReplyContent').innerHTML = data.postLightReplyContent;
+            let lightReplies = '';
+            for (let item of data.postLightReplyContent) {
+                lightReplies += `
+            <div class="post-reply-list">
+                <div class="discuss-card__header">
+                        <div class="discuss-card__avatar" style="background-image:url(${item.user.header})"></div>
+                        <div class="discuss-card__header-right">
+                            <p class="discuss-card__user">
+                                <span class="discuss-card__username">${item.user.username}</span>
+                            </p>
+                            <time class="discuss-card__time">${item.createDt}</time><span class="discuss-card__ip"> · ${item.location}</span>
+                        </div>
+                    </div>
+                    ${
+                        item.quote_info ? `
+                        <div class="discuss-card__quote-container">
+                            <div class="discuss-card__quote-container-quote">
+                                <span class="discuss-card__quote-container-discusser">${item.quote_info.username}：</span>
+                                <span class="discuss-card__quote-content">${item.quote_info.content}</span>
+                            </div>
+                        </div>` : ''
+                    }
+                    <div class="discuss-card__content-container">
+                        ${item.content}
+                    </div>
+                    <div class="discuss-card__actions">
+                        <div class="discuss-card__actions-item light">
+                            <span>亮了(${item.light})</span>
+                        </div>
+                        <div class="discuss-card__actions-item comment">
+                            <span style="cursor: pointer;">查看回复(${item.replies})</span>
+                        </div>
+                    </div>
+            </div>`;
+            }
+            // <p class="discuss-card__content">宁王只能嘴别人，别人嘴他就不行了，会红温的</p>
+            // <div class="discuss-card__images">
+            //     <div class="fufu-info-flow-container " data-type="image" style="width: 78.828px; height: 78.828px;">
+            //         <img alt="discuss-image" class="hupu-fufu-lazy-img fufu-info-flow__content" width="78.828" src="https://i1.hoopchina.com.cn/hupuapp/bbs/0/0/thread_0_20220705070937_s_922031_o_w_308_h_308_46617.jpg?x-oss-process=image/resize,w_225/qulity,Q_60" height="78.828">
+            //     </div>
+            // </div>
+            oContentLight.querySelector('#lightReplyContent').innerHTML = lightReplies;
             oContentLight.style.display = 'block';
         } else {
             oContentLight.style.display = 'none';

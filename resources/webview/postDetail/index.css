@@ -1,13 +1,12 @@
 .hupumoyu-postDetail img,
 .hupumoyu-postDetail video {
     cursor: pointer;
-    margin: 10px 0;
+    display: block;
 }
 
 .hupumoyu-postDetail img.hide {
     opacity: 0;
-    width: 100%;
-    height: 100px;
+    display: block;
 }
 
 .hupumoyu-postDetail video.hide {
@@ -57,6 +56,120 @@
     border-bottom: 1px solid;
     padding-bottom: 10px;
     margin-bottom: 10px;
+
+    .discuss-card__header {
+        margin-bottom: 12px;
+        display: flex;
+        max-width: -webkit-max-content;
+        max-width: -moz-max-content;
+        max-width: max-content;
+
+        .discuss-card__avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            overflow: hidden;
+            background-size: cover;
+
+            img {
+                width: 100%;
+                height: 100%;
+            }
+        }
+    }
+
+    .discuss-card__quote-container {
+        margin-left: 44px;
+        margin-bottom: 8px;
+        padding: 8px;
+        background-color: #262626;
+        border-radius: 2px;
+
+        .discuss-card__quote-container-quote {
+            padding-left: 8px;
+            position: relative;
+            font-size: 14px;
+            line-height: 22px;
+            font-family: PingFangSC-Regular, PingFang SC, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
+            font-weight: 400;
+            color: #89909f;
+
+            .discuss-card__quote-container-discusser {
+                color: #2f6eeb;
+            }
+
+            p {
+                margin-bottom: 10px;
+            }
+        }
+    }
+
+    .discuss-card__content-container {
+        margin-left: 44px;
+
+        p {
+            margin-bottom: 10px;
+        }
+
+        img {
+            display: block;
+        }
+    }
+
+    .discuss-card__actions {
+        margin-left: 44px;
+        display: flex;
+
+        .discuss-card__actions-item {
+            display: flex;
+            align-items: center;
+            margin-right: 18px;
+
+            span {
+                margin-left: 4px;
+                font-size: 12px;
+                line-height: 17px;
+                font-family: PingFangSC-Regular, PingFang SC, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
+                font-family: Helvetica;
+                font-weight: 400;
+            }
+        }
+    }
+
+    .discuss-card__header-right {
+        margin-left: 12px;
+    }
+
+    .discuss-card__user {
+        display: flex;
+        align-items: center;
+
+        .discuss-card__username {
+            font-size: 14px;
+            line-height: 18px;
+            font-family: PingFangSC-Regular, PingFang SC, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
+            font-weight: 400;
+            color: #6c717d;
+        }
+    }
+
+    .discuss-card__time {
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 12px;
+        font-family: PingFangSC-Regular, PingFang SC, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
+        font-weight: 400;
+        color: #89909f;
+    }
+
+    .discuss-card__ip {
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 12px;
+        font-family: PingFangSC-Regular, PingFang SC, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
+        font-weight: 400;
+        color: #89909f;
+    }
 }
 
 .basketballTobbs_tag,
@@ -155,7 +268,6 @@
     position: relative;
     z-index: 3;
     display: block;
-    margin: 10px 0;
 }
 
 .hupumoyu-img-conver::after {
@@ -207,8 +319,11 @@
     margin: 8px 0;
     position: relative;
     z-index: 1;
+    text-align: center;
 }
+
 .header-video-wrapper .hupu-post-video {}
+
 .header-video-wrapper .hupu-post-video-poster {
     position: absolute;
     width: 100%;
