@@ -2,6 +2,7 @@
 .hupumoyu-postDetail video {
     cursor: pointer;
     display: block;
+    margin: 10px 0;
 }
 
 .hupumoyu-postDetail img.hide {
@@ -54,6 +55,7 @@
             .hupumoyu-post-wrapper-content {
                 flex: 1;
                 overflow-y: auto;
+                padding: 0 10px;
             }
         }
     }
@@ -102,8 +104,8 @@
         max-width: max-content;
 
         .discuss-card__avatar {
-            width: 32px;
-            height: 32px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             overflow: hidden;
             background-size: cover;
@@ -163,7 +165,6 @@
             margin-right: 18px;
 
             span {
-                margin-left: 4px;
                 font-size: 12px;
                 line-height: 17px;
                 font-family: PingFangSC-Regular, PingFang SC, Helvetica Neue, Helvetica, STHeiTi, sans-serif;
@@ -322,23 +323,6 @@
     opacity: 0.6;
 }
 
-.hupumoyu-pagination-hide {
-    position: absolute;
-    left: -9999999999px;
-    top: 0;
-    z-index: 0;
-    opacity: 0;
-}
-
-.hupumoyu-pagination {
-    display: flex;
-}
-
-.hupumoyu-pagination .hupumoyu-pagination-item {
-    flex: 1;
-    outline: none;
-}
-
 .hupu-bbs-post .hupu-img .bbs-img {
     position: relative;
     width: 100%;
@@ -358,8 +342,6 @@
     z-index: 1;
     text-align: center;
 }
-
-.header-video-wrapper .hupu-post-video {}
 
 .header-video-wrapper .hupu-post-video-poster {
     position: absolute;

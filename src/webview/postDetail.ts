@@ -238,9 +238,6 @@ export default class PostDetailWebView {
                             -->
                         </div>
                     </div>
-                    <!-- 页码 -->
-                    <div data-target="content" class="hupumoyu-pagination-hide" id="hupumoyu-pagination-hide"></div>
-                    <div data-target="content" class="hupumoyu-pagination" id="hupumoyu-pagination"></div>
                     <div data-target="content" class="hupumoyu-loading" id="hupumoyu-loading">加载中...</div>
 
                     <div class="fake-content" id="fakeContent"></div>
@@ -290,6 +287,5 @@ interface ResPostDetail {
     postContent: string | null;
     postLightReplyContent: string | null;
     postGrayReplyContent: string | null;
-    pagination: string | null;
     tid: string | undefined;
 }

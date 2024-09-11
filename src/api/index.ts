@@ -100,8 +100,6 @@ export const hupuPostDetail = async (url: string) => {
             postContent,
             postLightReplyContent: retData.initialRepliesData.lightReplies,
             postGrayReplyContent: retData.initialRepliesData.initialReplies,
-            // pagination: $('.hupu-rc-pagination').html(),
-            // noContent: $('.none-content').html(),
             url,
             tid: retData.threadData.data.basicInfo.tid,
         };

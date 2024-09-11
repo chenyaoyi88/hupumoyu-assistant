@@ -49,17 +49,23 @@
             case 'postReply':
                 // 获取回复，插入展示
                 if (data.replies && data.replies.length) {
-                    const oReply = document.querySelector('#hupumoyu-content-reply');replyZindex++;
+                    const oReply = document.querySelector('#hupumoyu-content-reply');
+                    replyZindex++;
                     const sReplyContent = `
-                        <div class="hupumoyu-content-reply-item open" style="zIndex: ${replyZindex};">
-                            <div class="hupumoyu-post-wrapper-title">
-                                <span>全部回复</span>
-                                <span class="hupumoyu-content-reply-close" data-id="hupumoyu-content-reply-close">关闭</span>
-                            </div>
-                            <div class="hupumoyu-post-wrapper-content">${renderReplyDetail(data, data.replies)}</div>
+                        <div class="hupumoyu-post-wrapper-title">
+                            <span>全部回复</span>
+                            <span class="hupumoyu-content-reply-close" data-id="hupumoyu-content-reply-close">关闭</span>
                         </div>
+                        <div class="hupumoyu-post-wrapper-content">${renderReplyDetail(data, data.replies)}</div>
                     `;
-                    oReply.insertAdjacentHTML('beforeend', sReplyContent);
+                    const oContentReplyItem = document.createElement('div');
+                    oContentReplyItem.style.zIndex = replyZindex;
+                    oContentReplyItem.classList.add('hupumoyu-content-reply-item');
+                    oContentReplyItem.innerHTML = sReplyContent;
+                    oReply.appendChild(oContentReplyItem);
+                    setTimeout(() => {
+                        oContentReplyItem.classList.add('open');
+                    }, 0);
                     const newReplyList = oReply.querySelectorAll('img,video');
                     addImgHideCoverClass(newReplyList);
                     showPostImgAndVideo(newReplyList);
@@ -80,7 +86,6 @@
                     const oReplyItem = target.parentElement.parentElement;
                     oReplyItem.classList.remove('open');
                     setTimeout(() => {
-                        // 删除
                         document.querySelector('#hupumoyu-content-reply').removeChild(oReplyItem);
                     }, 400);
                     break;
@@ -212,7 +217,6 @@
         const oThreadContentDetail = /** @type {HTMLElement} */ (document.getElementById('hupumoyu-content-main'));
         const oContentLight = /** @type {HTMLElement} */ (document.getElementById('hupumoyu-content-light'));
         const oContentGray = /** @type {HTMLElement} */ (document.getElementById('hupumoyu-content-gray'));
-        const oPaginationHide = /** @type {HTMLElement} */ (document.getElementById('hupumoyu-pagination-hide'));
 
         oTitle.innerHTML =
             `
@@ -238,16 +242,9 @@
             oContentGray.style.display = 'none';
         }
 
-        if (data.pagination) {
-            oPaginationHide.innerHTML = data.pagination;
-        } else {
-            oPaginationHide.innerHTML = '';
-        }
-
-        // 没有内容
-        if (data.noContent) {
-            oThreadContentDetail.innerHTML = data.noContent || '';
-        }
+        // 清空上一个页面打开的回复
+        const oReply = document.querySelector('#hupumoyu-content-reply');
+        oReply.innerHTML = '';
 
         const oContent = document.querySelector('#hupumoyu-content-box');
         // 用来隐藏页面未渲染完成时页面凌乱的状态
