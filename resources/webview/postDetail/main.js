@@ -46,39 +46,14 @@
                 setContent(data);
                 break;
             case 'postReply':
-                if (selectedReplyElement) {
-                    let str = '';
-                    for (let item of data) {
-                        str += `
-                    <div class="reply-list-item">
-                      <p class="reply-list-item-title">
-                        <a href="javascript;">${item.author.puname} </a>
-                        <span> ${item.createdAtFormat}</span>
-                      </p>
-                      <div class="reply-list-item-content">
-                        ${item.content}
-                      </div>
-                      <div class="reply-list-item-light">
-                        亮了(${item.count})
-                      </div>
-                    </div>
-                    `;
-                    }
-                    const oReplyItemBox = selectedReplyElement.querySelector('.reply-list-item-box');
-                    if (oReplyItemBox) {
-                        oReplyItemBox.innerHTML = str;
-                    } else {
-                        str = `
-                    <div class="reply-list-item-box">
-                        ${str}
-                    </div>`;
-                        selectedReplyElement.insertAdjacentHTML('beforeend', str);
-                    }
-
-                    const newReplyList = selectedReplyElement.querySelectorAll('.reply-list-item-box img,video');
-
+                // 查看回复
+                if (data.replies && data.replies.length) {
+                    const oReply = document.querySelector('#hupumoyu-content-reply .hupumoyu-post-wrapper-content');
+                    oReply.innerHTML = renderReplyDetail(data, data.replies);
+                    const newReplyList = oReply.querySelectorAll('img,video');
                     addImgHideCoverClass(newReplyList);
                     showPostImgAndVideo(newReplyList);
+                    document.querySelector('#hupumoyu-content-reply').classList.add('open');
                 }
                 break;
             default:
@@ -86,6 +61,33 @@
         }
     });
 
+    document.querySelector('#hupumoyu-content-box').addEventListener('click', (e) => {
+        const target = e.target;
+        const id = target.dataset.id;
+        if (id) {
+            switch (id) {
+                case 'hupumoyu-content-reply-close':
+                    // 关闭回复
+                    document.querySelector('#hupumoyu-content-reply').classList.remove('open');
+                    document.querySelector('#hupumoyu-content-reply .hupumoyu-post-wrapper-content').innerHTML = '';
+                    break;
+                case 'comment':
+                    if (target.dataset.tid && target.dataset.pid) {
+                        vscode.postMessage({
+                            command: 'getPostReply',
+                            content: {
+                                tid: target.dataset.tid,
+                                pid: target.dataset.pid,
+                            },
+                        });
+                    }
+                    break;
+                default:
+            }
+        }
+    }, false);
+
+    // 渲染内容
     const renderReplyDetail = (data, list) => {
         let ret = '';
         for (let item of list) {
@@ -97,7 +99,7 @@
                         <p class="discuss-card__user">
                             <span class="discuss-card__username">${item.user.username}</span>
                         </p>
-                        <time class="discuss-card__time">${item.createDt}</time><span class="discuss-card__ip"> · ${item.location}</span>
+                        <time class="discuss-card__time">${item.createDt || (item.user && item.user.createDt || '')}</time><span class="discuss-card__ip"> · ${item.location || ''}</span>
                     </div>
                 </div>
                 ${item.quote_info ? `
@@ -113,10 +115,10 @@
                 </div>
                 <div class="discuss-card__actions">
                     <div class="discuss-card__actions-item light">
-                        <span>亮了(${item.light})</span>
+                        <span>亮了(${item.light || item.lights})</span>
                     </div>
                     <div class="discuss-card__actions-item comment">
-                        <span style="cursor: pointer;" data-comment data-tid="${data.tid}" data-pid="${item.pid}">查看回复(${item.replies})</span>
+                        <span style="cursor: pointer;" data-id="comment" data-tid="${data.tid}" data-pid="${item.pid}">查看回复(${item.replies})</span>
                     </div>
                 </div>
         </div>`;
@@ -216,7 +218,7 @@
         }
 
         if (data.postGrayReplyContent) {
-            oContentGray.querySelector('#grayReplyContent').innerHTML = renderReplyDetail(data, data.postGrayReplyContent);;
+            oContentGray.querySelector('#grayReplyContent').innerHTML = renderReplyDetail(data, data.postGrayReplyContent);
             oContentGray.style.display = 'block';
         } else {
             oContentGray.style.display = 'none';
@@ -241,7 +243,7 @@
         window.scrollTo(0, 0);
 
         renderImage();
-        setReplyClick();
+        // setReplyClick();
         addImgHideCoverClass();
         showPostImgAndVideo(document.querySelectorAll('#hupumoyu-postDetail img,video'));
     }

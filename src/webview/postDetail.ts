@@ -40,13 +40,13 @@ export default class PostDetailWebView {
                         open(message.content);
                         break;
                     case 'getPostReply':
-                        console.log('收到回复信息', message);
+                        // console.log('收到回复信息', message);
                         try {
                             const res: any = await hupuPostReply(message.content);
                             if (res.data && res.data.replies && res.data.replies.length) {
                                 PostDetailWebView.panel.webview.postMessage({
                                     command: 'postReply',
-                                    data: res.data.replies,
+                                    data: res.data,
                                 });
                             }
                         } catch (error) {
@@ -206,7 +206,6 @@ export default class PostDetailWebView {
 				<title>标题</title>
 			</head>
 			<body id="hupumoyu-postDetail" class="hupumoyu-postDetail">
-
                     <!-- 内容 -->
                     <div data-target="content" class="hupumoyu-content-box hide" id="hupumoyu-content-box">
                         <!-- 帖子标题 -->
@@ -222,6 +221,14 @@ export default class PostDetailWebView {
                         <div id="hupumoyu-content-gray" class="hupumoyu-content-gray">
                             <div class="hupumoyu-post-wrapper-title">全部回帖</div>
                             <div class="hupumoyu-post-wrapper-content" id="grayReplyContent"></div>
+                        </div>
+                        <!-- 查看回复 -->
+                        <div id="hupumoyu-content-reply" class="hupumoyu-content-reply">
+                            <div class="hupumoyu-post-wrapper-title">
+                                <span>全部回复</span>
+                                <span class="hupumoyu-content-reply-close" data-id="hupumoyu-content-reply-close">关闭</span>
+                            </div>
+                            <div class="hupumoyu-post-wrapper-content" id="newReplyContent"></div>
                         </div>
                     </div>
                     <!-- 页码 -->

@@ -20,6 +20,41 @@
 
 .hupumoyu-content-box {
     overflow-y: auto;
+    position: relative;
+    z-index: 1;
+    .hupumoyu-content-reply {
+        border-top: 1px solid var(--vscode-foreground);
+        transition: 0.4s ease all;
+        position: fixed;
+        z-index: 2;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 0%;
+        background-color: var(--vscode-editor-background);
+        display: flex;
+        flex-direction: column;
+        &.open {
+            height: 60%;
+        }
+        .hupumoyu-post-wrapper-title {
+            text-align: center;
+            position: relative;
+            z-index: 3;
+            margin: 10px 0;
+            .hupumoyu-content-reply-close {
+                position: absolute;
+                right: 10px;
+                top: 0;
+                z-index: 4;
+                cursor: pointer;
+            }
+        }
+        .hupumoyu-post-wrapper-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+    }
 }
 
 .hupumoyu-content-box.hide {
