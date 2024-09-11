@@ -106,8 +106,6 @@ export const hupuPostDetail = async (url: string) => {
             tid: retData.threadData.data.basicInfo.tid,
         };
 
-        console.log(111, res);
-
         if (_context?.extensionMode === 2) {
             console.log('6-帖子详情', res);
         }
@@ -128,7 +126,8 @@ export const hupuPostReply = async ({
     pid
 }: HupuPostReplyRequestParams) => {
     try {
-        const res = await req(`https://bbs.hupu.com/api/v2/reply/reply?tid=${tid}&pid=${pid}&maxpid=0`, {
+        // https://m.hupu.com/api/v2/bbs-reply-detail/627871645-27117
+        const res = await req(`https://m.hupu.com/api/v2/bbs-reply-detail/${tid}-${pid}`, {
             tipsName: '7-帖子评论',
         });
         return res;
@@ -150,6 +149,16 @@ export const getAllTopicList = async () => {
         const retData = resData.props.pageProps.data;
         if (_context?.extensionMode === 2) {
             console.log('8-论坛版块', retData);
+        }
+        for (let item of retData) {
+            item.label = item.name;
+            item.value = item.categoryId;
+            if (item.topicList && item.topicList.length) {
+                for (let item1 of item.topicList) {
+                    item1.label = item1.topicName;
+                    item1.value = item1.topicId;
+                }
+            }
         }
         return retData;
     } catch (error) {

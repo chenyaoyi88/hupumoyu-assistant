@@ -40,15 +40,13 @@ export default class PostDetailWebView {
                         open(message.content);
                         break;
                     case 'getPostReply':
+                        console.log('收到回复信息', message);
                         try {
-                            const res: any = await hupuPostReply({
-                                tid: message.content.tid,
-                                pid: message.content.pid,
-                            });
-                            if (res.data && res.data.list && res.data.list.length) {
+                            const res: any = await hupuPostReply(message.content);
+                            if (res.data && res.data.replies && res.data.replies.length) {
                                 PostDetailWebView.panel.webview.postMessage({
                                     command: 'postReply',
-                                    data: res.data.list,
+                                    data: res.data.replies,
                                 });
                             }
                         } catch (error) {
@@ -106,7 +104,7 @@ export default class PostDetailWebView {
      * @param data 
      */
     async getPostDetailContent(data: { url: string, pageNo: number }) {
-        const res: ResPostDetail | null = await hupuPostDetail(data.url);
+        const res: any | null = await hupuPostDetail(data.url);
         this.hideLoading();
         if (res) {
             res.showPostImgs = this._context.globalState.get('bxj-settings-showPostImgs');

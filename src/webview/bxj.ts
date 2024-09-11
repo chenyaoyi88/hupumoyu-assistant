@@ -56,6 +56,10 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         this.setClickCommands();
     }
 
+    removeOldData () {
+        const lastviewedList: Array<CurrentSelectTopicInfo> = this._context.globalState.get('bxj-lastviewed-module') || [];
+    }
+
     setClickCommands() {
         const bxjRefresh = vscode.commands.registerCommand(
             'bxjTreeView.refresh',
@@ -315,22 +319,23 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         return data;
     }
 
-    /**
-     * 切换板块
-     * @param context 
-     * @param categoriesModule 分类板块
-     */
     async moduleChange() {
-        const lastviewedList: Array<PostModule> = this._context.globalState.get('bxj-lastviewed-module') || [];
-        const target = await vscode.window.showQuickPick(
-            [
-                {
-                    label: '全部分类',
-                    value: 'all-categories',
-                    detail: `下面显示的是最近看过的 ${BxjViewProvider.maxLastviewedLength} 板块`,
-                },
-                ...lastviewedList,
-            ],
+        const lastviewedList: Array<CurrentSelectTopicInfo> = this._context.globalState.get('bxj-lastviewed-module') || [];
+        const allcategories: any = [
+            {
+                label: '全部分类',
+                value: 'all-categories',
+                detail: `下面显示的是最近看过的 ${BxjViewProvider.maxLastviewedLength} 板块`,
+            },
+        ];
+        // 过滤掉重复的
+        for (let item of lastviewedList) {
+            if (!(allcategories.some((item1: any) => item1.value === item.topicId))) {
+                allcategories.push(item);
+            }
+        }
+        const target: any = await vscode.window.showQuickPick(
+            allcategories,
             {
                 title: '请选择要切换的板块',
                 placeHolder: '请选择要切换的板块'
@@ -340,59 +345,53 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         if (target) {
             if (target.value === 'all-categories') {
                 // 选择其他板块
-                // this.multStepInput(context, categoriesModule);
+                this.multStepInput();
             } else {
                 // 选择当前板块
-                // this.getCurrentTopicData(context, target);
+                this.getCurrentTopicData(target);
             }
         }
     }
 
-    /**
-     * 选择板块
-     * @param context 
-     * @param categoriesModule 分类板块
-     */
-    async multStepInput(context: vscode.ExtensionContext, categoriesModule: Array<PostModule>) {
-        // const pick = await vscode.window.createQuickPick();
-        // pick.title = '请选择你想看的板块';
-        // pick.step = 1;
-        // pick.items = categoriesModule;
-        // pick.totalSteps = 2;
-        // let currentSelectedItem = { label: '' };
-        // pick.onDidChangeSelection((aItem: any) => {
-        //     if (pick.step === 1) {
-        //         // 切换到第二步
-        //         pick.step = 2;
-        //         // 选择专区
-        //         pick.title = '请选择你想看的专区';
-        //         // 加载子版块选项
-        //         pick.items = aItem[0].topics;
-        //         // 记录当前选择的板块（用于后退时切换回来）
-        //         currentSelectedItem = aItem[0];
-        //         // 显示后退按钮
-        //         pick.buttons = [vscode.QuickInputButtons.Back];
-        //     } else if (pick.step === 2) {
-        //         if (aItem[0]) {
-        //             pick.hide();
-        //             const currentModule: PostModule = {
-        //                 label: aItem[0].label,
-        //                 value: aItem[0].value,
-        //                 pageNo: 0,
-        //             };
-        //             this.getCurrentTopicData(context, currentModule);
-        //         }
-        //     }
-        // });
-        // // 返回按钮
-        // pick.onDidTriggerButton(() => {
-        //     pick.title = '请选择你想看的板块';
-        //     pick.step = 1;
-        //     pick.items = categoriesModule;
-        //     pick.activeItems = [currentSelectedItem];
-        //     pick.buttons = [];
-        // });
-        // pick.show();
+    async multStepInput() {
+        const pick = vscode.window.createQuickPick();
+        pick.title = '请选择你想看的板块';
+        pick.step = 1;
+        pick.items = this.categoriesModule;
+        pick.totalSteps = 2;
+        let currentSelectedItem = { label: '' };
+        pick.onDidChangeSelection((aItem: any) => {
+            if (pick.step === 1) {
+                // 切换到第二步
+                pick.step = 2;
+                // 选择专区
+                pick.title = '请选择你想看的专区';
+                // 加载子版块选项
+                pick.items = aItem[0].topicList;
+                // 记录当前选择的板块（用于后退时切换回来）
+                currentSelectedItem = aItem[0];
+                // 显示后退按钮
+                pick.buttons = [vscode.QuickInputButtons.Back];
+            } else if (pick.step === 2) {
+                if (aItem[0]) {
+                    // console.log('选择模块', aItem[0]);
+                    pick.hide();
+                    aItem[0].page = 0;
+                    aItem[0].list = [];
+                    aItem[0].nextCursor = '';
+                    this.getCurrentTopicData(aItem[0]);
+                }
+            }
+        });
+        // 返回按钮
+        pick.onDidTriggerButton(() => {
+            pick.title = '请选择你想看的板块';
+            pick.step = 1;
+            pick.items = this.categoriesModule;
+            pick.activeItems = [currentSelectedItem];
+            pick.buttons = [];
+        });
+        pick.show();
     }
 
     /**
@@ -458,7 +457,10 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
     }
 
     // 获取当前板块数据
-    async getCurrentTopicData() {
+    async getCurrentTopicData(currentSelectTopicInfo?: CurrentSelectTopicInfo) {
+        if (currentSelectTopicInfo) {
+            this.currentSelectTopicInfo = currentSelectTopicInfo;
+        }
         // 本地缓存更新当前选择的板块
         this._context.globalState.update('bxj-current-topicInfo', this.currentSelectTopicInfo);
         // 加入到最近看过的板块
@@ -541,9 +543,9 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                     // data.title = '【直播】Ning王看解说杯：BSYY绝对的野鸡教练！绝对没看过Ning的复盘';
                     PostDetailWebView.createOrShow(this._context, data);
                     break;
-                case 'switchType':
-                    // this.switchPostType(this._context, this.currentSelectTopicInfo);
-                    break;
+                // case 'switchType':
+                //     this.switchPostType(this._context, this.currentSelectTopicInfo);
+                //     break;
                 default:
                     PostDetailWebView.hideLoading();
             }

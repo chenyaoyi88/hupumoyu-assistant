@@ -86,111 +86,62 @@
         }
     });
 
+    const renderReplyDetail = (data, list) => {
+        let ret = '';
+        for (let item of list) {
+            ret += `
+        <div class="post-reply-list">
+            <div class="discuss-card__header">
+                    <div class="discuss-card__avatar" style="background-image:url(${item.user.header})"></div>
+                    <div class="discuss-card__header-right">
+                        <p class="discuss-card__user">
+                            <span class="discuss-card__username">${item.user.username}</span>
+                        </p>
+                        <time class="discuss-card__time">${item.createDt}</time><span class="discuss-card__ip"> · ${item.location}</span>
+                    </div>
+                </div>
+                ${item.quote_info ? `
+                    <div class="discuss-card__quote-container">
+                        <div class="discuss-card__quote-container-quote">
+                            <span class="discuss-card__quote-container-discusser">${item.quote_info.username}：</span>
+                            <span class="discuss-card__quote-content">${item.quote_info.content}</span>
+                        </div>
+                    </div>` : ''
+                }
+                <div class="discuss-card__content-container">
+                    ${item.content}
+                </div>
+                <div class="discuss-card__actions">
+                    <div class="discuss-card__actions-item light">
+                        <span>亮了(${item.light})</span>
+                    </div>
+                    <div class="discuss-card__actions-item comment">
+                        <span style="cursor: pointer;" data-comment data-tid="${data.tid}" data-pid="${item.pid}">查看回复(${item.replies})</span>
+                    </div>
+                </div>
+        </div>`;
+        }
+        return ret;
+    };
+
+    // 点击查看回复
     function setReplyClick() {
-
-        const aReplayList = document.querySelectorAll('.todo-list.todo-list-replay');
-
+        const aReplayList = document.querySelectorAll('[data-comment]');
+        // console.log('回复列表', aReplayList);
         // @ts-ignore
         for (let i = 0; i < aReplayList.length; i++) {
             aReplayList[i].addEventListener('click', (event) => {
-                const sMsg = event.target.parentElement.parentElement.parentElement.previousElementSibling.firstElementChild.children[2].getAttribute('data-admininfo');
-
-                selectedReplyElement = event.target.parentElement.parentElement.parentElement.parentElement.parentElement.parentElement;
-
-                if (selectedReplyElement.getAttribute('data-reply') === '1') {
-                    selectedReplyElement.setAttribute('data-reply', '0');
-                    const oReplyItemBox = selectedReplyElement.querySelector('.reply-list-item-box');
-                    if (oReplyItemBox) {
-                        oReplyItemBox.outerHTML = '';
-                    }
-                } else {
-                    selectedReplyElement.setAttribute('data-reply', '1');
-                    if (sMsg) {
-                        const oMsg = JSON.parse(sMsg);
-                        const oState = vscode.getState();
-                        if (oState && oState.data) {
-                            oMsg.tid = oState.data.tid;
-                        }
-                        vscode.postMessage({
-                            command: 'getPostReply',
-                            content: oMsg,
-                        });
-                    }
-                }
-            }, false);
-        }
-    }
-
-    function rerenderPagination(data = {}) {
-        const aPageEle = document.querySelectorAll('.hupumoyu-pagination-hide .hupu-rc-pagination-item');
-        const oContent = /** @type {HTMLElement} */ document.getElementById('hupumoyu-content-box');
-        const oPagination = /** @type {HTMLElement} */ document.querySelector('#hupumoyu-pagination');
-        if (aPageEle && aPageEle.length) {
-            const oLastPage = aPageEle[aPageEle.length - 1];
-            if (oLastPage) {
-                const value = oLastPage.querySelector('.block-c').getAttribute('href');
-                const lastPageNo = Number(value.split('.')[0].split('-')[1]);
-
-                const currentState = (vscode.getState());
-                let currentPageNo = data.pageNo || Number(currentState.data.pageNo);
-
-                oPagination.innerHTML = `
-                <a href="javascript;" class="hupumoyu-pagination-item" data-id="first" data-page="first">首页</a>
-                <a href="javascript;" class="hupumoyu-pagination-item" data-id="prev" data-page="prev">上一页</a>
-                <a href="javascript;" class="hupumoyu-pagination-item" data-id="next" data-page="next">下一页</a>
-                <a href="javascript;" class="hupumoyu-pagination-item" data-id="last" data-page="last">尾页</a>
-                <span href="javascript;" class="hupumoyu-pagination-item">${currentPageNo}/${lastPageNo}</span>
-                `;
-
-                oContent.style.height = window.innerHeight - oPagination.offsetHeight - 15 + 'px';
-                oContent.scrollTo(0, 0);
-
-                const aPageItem = /** @type {HTMLElement} */ oPagination.querySelectorAll('.hupumoyu-pagination-item');
-
-                const pagechange = (pageNo) => {
-                    showLoading();
+                const target = event.target || event.srcElement;
+                if (target.dataset.tid && target.dataset.pid) {
                     vscode.postMessage({
-                        command: 'pagechange',
+                        command: 'getPostReply',
                         content: {
-                            pageNo,
-                            tid: currentState.data.tid,
+                            tid: target.dataset.tid,
+                            pid: target.dataset.pid,
                         },
                     });
-                };
-
-                for (let i = 0; i < aPageItem.length; i++) {
-                    aPageItem[i].addEventListener('click', function (e) {
-                        const page = e.target.dataset.page;
-                        switch (page) {
-                            case 'first':
-                                pagechange(1);
-                                break;
-                            case 'prev':
-                                currentPageNo--;
-                                if (currentPageNo < 1) {
-                                    currentPageNo = 1;
-                                }
-                                pagechange(currentPageNo);
-                                break;
-                            case 'next':
-                                currentPageNo++;
-                                if (currentPageNo > lastPageNo) {
-                                    currentPageNo = lastPageNo;
-                                }
-                                pagechange(currentPageNo);
-                                break;
-                            case 'last':
-                                pagechange(lastPageNo);
-                                break;
-                        }
-                    }, false);
                 }
-            }
-        } else {
-            oPagination.innerHTML = '';
-
-            oContent.style.height = 'auto';
-            oContent.scrollTo(0, 0);
+            }, false);
         }
     }
 
@@ -209,7 +160,7 @@
         }
     }
 
-    function renderImage () {
+    function renderImage() {
         const aImages = document.querySelectorAll('[data_url]');
         if (aImages.length) {
             for (let i = 0; i < aImages.length; i++) {
@@ -258,84 +209,14 @@
         oThreadContentDetail.innerHTML = data.postContent || '';
 
         if (data.postLightReplyContent) {
-            let lightReplies = '';
-            for (let item of data.postLightReplyContent) {
-                lightReplies += `
-            <div class="post-reply-list">
-                <div class="discuss-card__header">
-                        <div class="discuss-card__avatar" style="background-image:url(${item.user.header})"></div>
-                        <div class="discuss-card__header-right">
-                            <p class="discuss-card__user">
-                                <span class="discuss-card__username">${item.user.username}</span>
-                            </p>
-                            <time class="discuss-card__time">${item.createDt}</time><span class="discuss-card__ip"> · ${item.location}</span>
-                        </div>
-                    </div>
-                    ${
-                        item.quote_info ? `
-                        <div class="discuss-card__quote-container">
-                            <div class="discuss-card__quote-container-quote">
-                                <span class="discuss-card__quote-container-discusser">${item.quote_info.username}：</span>
-                                <span class="discuss-card__quote-content">${item.quote_info.content}</span>
-                            </div>
-                        </div>` : ''
-                    }
-                    <div class="discuss-card__content-container">
-                        ${item.content}
-                    </div>
-                    <div class="discuss-card__actions">
-                        <div class="discuss-card__actions-item light">
-                            <span>亮了(${item.light})</span>
-                        </div>
-                        <div class="discuss-card__actions-item comment">
-                            <span style="cursor: pointer;">查看回复(${item.replies})</span>
-                        </div>
-                    </div>
-            </div>`;
-            }
-            oContentLight.querySelector('#lightReplyContent').innerHTML = lightReplies;
+            oContentLight.querySelector('#lightReplyContent').innerHTML = renderReplyDetail(data, data.postLightReplyContent);
             oContentLight.style.display = 'block';
         } else {
             oContentLight.style.display = 'none';
         }
 
         if (data.postGrayReplyContent) {
-            let allReplies = '';
-            for (let item of data.postGrayReplyContent) {
-                allReplies += `
-                <div class="post-reply-list">
-                    <div class="discuss-card__header">
-                            <div class="discuss-card__avatar" style="background-image:url(${item.user.header})"></div>
-                            <div class="discuss-card__header-right">
-                                <p class="discuss-card__user">
-                                    <span class="discuss-card__username">${item.user.username}</span>
-                                </p>
-                                <time class="discuss-card__time">${item.createDt}</time><span class="discuss-card__ip"> · ${item.location}</span>
-                            </div>
-                        </div>
-                        ${
-                            item.quote_info ? `
-                            <div class="discuss-card__quote-container">
-                                <div class="discuss-card__quote-container-quote">
-                                    <span class="discuss-card__quote-container-discusser">${item.quote_info.username}：</span>
-                                    <span class="discuss-card__quote-content">${item.quote_info.content}</span>
-                                </div>
-                            </div>` : ''
-                        }
-                        <div class="discuss-card__content-container">
-                            ${item.content}
-                        </div>
-                        <div class="discuss-card__actions">
-                            <div class="discuss-card__actions-item light">
-                                <span>亮了(${item.light})</span>
-                            </div>
-                            <div class="discuss-card__actions-item comment">
-                                <span style="cursor: pointer;">查看回复(${item.replies})</span>
-                            </div>
-                        </div>
-                </div>`;
-            }
-            oContentGray.querySelector('#grayReplyContent').innerHTML = allReplies;
+            oContentGray.querySelector('#grayReplyContent').innerHTML = renderReplyDetail(data, data.postGrayReplyContent);;
             oContentGray.style.display = 'block';
         } else {
             oContentGray.style.display = 'none';
@@ -363,10 +244,5 @@
         setReplyClick();
         addImgHideCoverClass();
         showPostImgAndVideo(document.querySelectorAll('#hupumoyu-postDetail img,video'));
-        rerenderPagination(data);
     }
-
-    window.addEventListener('resize', () => {
-        rerenderPagination();
-    });
 }());
