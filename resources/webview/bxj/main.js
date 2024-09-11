@@ -119,7 +119,7 @@
                 renderImg();
             }
 
-            document.querySelector('[data-id="hupumoyu-module-title-btn"]').innerHTML = '更多';
+            // document.querySelector('[data-id="hupumoyu-module-title-btn"]').innerHTML = '更多';
 
             setModuleListHeight();
         }

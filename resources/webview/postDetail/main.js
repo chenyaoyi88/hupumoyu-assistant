@@ -5,6 +5,7 @@
     const oldState = (vscode.getState());
 
     let selectedReplyElement = null;
+    let replyZindex = 2;
 
     // 如果之前有值，则回填
     if (oldState && oldState.data) {
@@ -46,14 +47,22 @@
                 setContent(data);
                 break;
             case 'postReply':
-                // 查看回复
+                // 获取回复，插入展示
                 if (data.replies && data.replies.length) {
-                    const oReply = document.querySelector('#hupumoyu-content-reply .hupumoyu-post-wrapper-content');
-                    oReply.innerHTML = renderReplyDetail(data, data.replies);
+                    const oReply = document.querySelector('#hupumoyu-content-reply');replyZindex++;
+                    const sReplyContent = `
+                        <div class="hupumoyu-content-reply-item open" style="zIndex: ${replyZindex};">
+                            <div class="hupumoyu-post-wrapper-title">
+                                <span>全部回复</span>
+                                <span class="hupumoyu-content-reply-close" data-id="hupumoyu-content-reply-close">关闭</span>
+                            </div>
+                            <div class="hupumoyu-post-wrapper-content">${renderReplyDetail(data, data.replies)}</div>
+                        </div>
+                    `;
+                    oReply.insertAdjacentHTML('beforeend', sReplyContent);
                     const newReplyList = oReply.querySelectorAll('img,video');
                     addImgHideCoverClass(newReplyList);
                     showPostImgAndVideo(newReplyList);
-                    document.querySelector('#hupumoyu-content-reply').classList.add('open');
                 }
                 break;
             default:
@@ -68,11 +77,16 @@
             switch (id) {
                 case 'hupumoyu-content-reply-close':
                     // 关闭回复
-                    document.querySelector('#hupumoyu-content-reply').classList.remove('open');
-                    document.querySelector('#hupumoyu-content-reply .hupumoyu-post-wrapper-content').innerHTML = '';
+                    const oReplyItem = target.parentElement.parentElement;
+                    oReplyItem.classList.remove('open');
+                    setTimeout(() => {
+                        // 删除
+                        document.querySelector('#hupumoyu-content-reply').removeChild(oReplyItem);
+                    }, 400);
                     break;
                 case 'comment':
-                    if (target.dataset.tid && target.dataset.pid) {
+                    // 打开回复
+                    if (target.dataset.tid && target.dataset.pid && Number(target.dataset.replies)) {
                         vscode.postMessage({
                             command: 'getPostReply',
                             content: {
@@ -118,7 +132,7 @@
                         <span>亮了(${item.light || item.lights})</span>
                     </div>
                     <div class="discuss-card__actions-item comment">
-                        <span style="cursor: pointer;" data-id="comment" data-tid="${data.tid}" data-pid="${item.pid}">查看回复(${item.replies})</span>
+                        <span style="cursor: pointer;" data-id="comment" data-tid="${data.tid || ''}" data-pid="${item.pid || ''}" data-replies="${item.replies}" >查看回复(${item.replies})</span>
                     </div>
                 </div>
         </div>`;

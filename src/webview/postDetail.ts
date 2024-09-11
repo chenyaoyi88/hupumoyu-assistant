@@ -46,7 +46,10 @@ export default class PostDetailWebView {
                             if (res.data && res.data.replies && res.data.replies.length) {
                                 PostDetailWebView.panel.webview.postMessage({
                                     command: 'postReply',
-                                    data: res.data,
+                                    data: {
+                                        tid: message.content.tid,
+                                        ...res.data,
+                                    },
                                 });
                             }
                         } catch (error) {
@@ -224,11 +227,15 @@ export default class PostDetailWebView {
                         </div>
                         <!-- 查看回复 -->
                         <div id="hupumoyu-content-reply" class="hupumoyu-content-reply">
-                            <div class="hupumoyu-post-wrapper-title">
-                                <span>全部回复</span>
-                                <span class="hupumoyu-content-reply-close" data-id="hupumoyu-content-reply-close">关闭</span>
+                            <!-- 
+                            <div class="hupumoyu-content-reply-item">
+                                <div class="hupumoyu-post-wrapper-title">
+                                    <span>全部回复</span>
+                                    <span class="hupumoyu-content-reply-close" data-id="hupumoyu-content-reply-close">关闭</span>
+                                </div>
+                                <div class="hupumoyu-post-wrapper-content"></div>
                             </div>
-                            <div class="hupumoyu-post-wrapper-content" id="newReplyContent"></div>
+                            -->
                         </div>
                     </div>
                     <!-- 页码 -->
