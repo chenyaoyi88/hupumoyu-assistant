@@ -46,10 +46,16 @@
                 margin: 10px 0;
                 .hupumoyu-content-reply-close {
                     position: absolute;
-                    right: 10px;
-                    top: 0;
+                    right: 0;
+                    top: -2px;
                     z-index: 4;
                     cursor: pointer;
+                    width: 18px;
+                    height: 18px;
+                    font-size: 20px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }
             }
             .hupumoyu-post-wrapper-content {

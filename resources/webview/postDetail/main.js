@@ -54,7 +54,7 @@
                     const sReplyContent = `
                         <div class="hupumoyu-post-wrapper-title">
                             <span>全部回复</span>
-                            <span class="hupumoyu-content-reply-close" data-id="hupumoyu-content-reply-close">关闭</span>
+                            <div class="hupumoyu-content-reply-close" data-id="hupumoyu-content-reply-close">&times</div>
                         </div>
                         <div class="hupumoyu-post-wrapper-content">${renderReplyDetail(data, data.replies)}</div>
                     `;
@@ -107,7 +107,7 @@
     }, false);
 
     // 渲染内容
-    const renderReplyDetail = (data, list) => {
+    function renderReplyDetail (data, list) {
         let ret = '';
         for (let item of list) {
             ret += `
