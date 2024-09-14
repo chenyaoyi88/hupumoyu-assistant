@@ -82,6 +82,13 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
             },
         );
 
+        const bxjSearch = vscode.commands.registerCommand(
+            'bxjTreeView.search',
+            async () => {
+                this.searchInfo();
+            },
+        );
+
         const bxjSwitch = vscode.commands.registerCommand(
             'bxjTreeView.switch',
             async () => {
@@ -129,6 +136,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         this._context.subscriptions.push(bxjRefresh);
         this._context.subscriptions.push(bxjPrePage);
         this._context.subscriptions.push(bxjNextPage);
+        this._context.subscriptions.push(bxjSearch);
         this._context.subscriptions.push(bxjSwitch);
         this._context.subscriptions.push(bxjSettings);
         this._context.subscriptions.push(bxjCurrentModulePost);
@@ -223,6 +231,20 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
                 command: options.command,
                 data: options.show,
             });
+        }
+    }
+
+    async searchInfo () {
+        const target: any = await vscode.window.showQuickPick(
+            [
+                {
+                    label: '请输入搜索信息',
+                    value: '',
+                },
+            ],
+        );
+        if (target) {
+            console.log(target);
         }
     }
 

@@ -20,7 +20,7 @@
 		"湿乎乎",
 		"虎扑摸鱼助手"
 	],
-	"version": "1.3.0",
+	"version": "1.3.1",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
@@ -100,6 +100,15 @@
 			{
 				"command": "bxjTreeView.nextPage",
 				"title": "当前板块下一页",
+				"category": "虎扑摸鱼-步行街"
+			},
+			{
+				"command": "bxjTreeView.search",
+				"title": "搜索",
+				"icon": {
+					"dark": "resources/images/search/dark.svg",
+					"light": "resources/images/search/light.svg"
+				},
 				"category": "虎扑摸鱼-步行街"
 			},
 			{
@@ -214,6 +223,11 @@
 					"command": "bxjTreeView.settings",
 					"when": "view == bxjTreeView",
 					"group": "navigation@3"
+				},
+				{
+					"command": "bxjTreeView.search",
+					"when": "view == bxjTreeView",
+					"group": "navigation@4"
 				}
 			],
 			"view/item/context": [

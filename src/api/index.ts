@@ -295,3 +295,16 @@ export const hupuTeamMatchQuarterStats = async (matchId: string) => {
         return null;
     }
 };
+
+// 搜索
+export const hupuSearchInfo = async (options: { keyword: string }) => {
+    try {
+        const res = await req(`https://m.hupu.com/api/v2/search2?keyword=${encodeURIComponent(options.keyword)}&puid=0&type=posts&topicId=0&page=1`, {
+            resJson: false,
+            tipsName: '15-搜索',
+        });
+        return res;
+    } catch (error) {
+        return null;
+    }
+};
