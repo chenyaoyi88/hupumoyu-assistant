@@ -31,6 +31,9 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
     // 最近看过的板块，最多只保留20个
     private static maxLastviewedLength: number = 20;
 
+    // 搜索关键字
+    private keyword: string = '';
+
     statusBarPostIndex: number = -1;
 
     constructor(
@@ -65,7 +68,13 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         const bxjRefresh = vscode.commands.registerCommand(
             'bxjTreeView.refresh',
             async () => {
-                this.getCurrentTopicData();
+                if (this.currentSelectTopicInfo.topicId === -1) {
+                    // 搜索
+                    this.searchByKeyword();
+                } else {
+                    // 模块
+                    this.getCurrentTopicData();
+                }
             },
         );
 
@@ -86,7 +95,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         const bxjSearch = vscode.commands.registerCommand(
             'bxjTreeView.search',
             async () => {
-                this.searchKeyword();
+                this.handleSearch();
             },
         );
 
@@ -235,38 +244,49 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    async searchKeyword () {
+    async handleSearch () {
         const keyword = await vscode.window.showInputBox({
-            value: '',
+            value: this.keyword || '',
             placeHolder: '请输入搜索关键字',
         });
-        this._view?.webview.postMessage({
-            command: 'showLoading',
-        });
-        try {
-            const res: any = await hupuSearchInfo(keyword);
+        this.keyword = keyword || '';
+        this.searchByKeyword();
+    }
+
+    async searchByKeyword () {
+        if (this.keyword) {
             this._view?.webview.postMessage({
-                command: 'hideLoading',
+                command: 'showLoading',
             });
-            // console.log('搜索结果', res);
-            if (res && res.data && res.data.result) {
-                this.currentSelectTopicInfo.label = keyword || '';
-                for (let item of res.data.result.data) {
-                    item.url = `https://m.hupu.com/bbs/${item.id}`;
-                    item.tid = item.id;
-                    item.title = filterHtml(item.title);
-                }
-                this.currentSelectTopicInfo.list = res.data.result.data || [];
+            try {
+                const res: any = await hupuSearchInfo(this.keyword);
                 this._view?.webview.postMessage({
-                    command: 'updatePostList',
-                    data: this.currentSelectTopicInfo,
+                    command: 'hideLoading',
+                });
+                // console.log('搜索结果', res);
+                if (res && res.data && res.data.result) {
+                    this.currentSelectTopicInfo.topicId = -1;
+                    this.currentSelectTopicInfo.label = `【${this.keyword}】相关`;
+                    for (let item of res.data.result.data) {
+                        item.url = `https://m.hupu.com/bbs/${item.id}`;
+                        item.tid = item.id;
+                        item.title = filterHtml(item.title);
+                    }
+                    this.currentSelectTopicInfo.list = res.data.result.data || [];
+                    this._view?.webview.postMessage({
+                        command: 'updatePostList',
+                        data: {
+                            ...this.currentSelectTopicInfo,
+                            noPage: true,
+                        },
+                    });
+                }
+            } catch (error) {
+                console.log('搜索报错', error);
+                this._view?.webview.postMessage({
+                    command: 'hideLoading',
                 });
             }
-        } catch (error) {
-            console.log('搜索报错', error);
-            this._view?.webview.postMessage({
-                command: 'hideLoading',
-            });
         }
     }
 

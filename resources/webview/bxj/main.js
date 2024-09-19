@@ -96,12 +96,17 @@
             const oModuleList = oModuleListBox.querySelector('#hupumoyu-module-list');
 
             if (data?.label) {
-                document.querySelector('[data-id="hupumoyu-module-title"]').innerHTML = `${data.label}${data.page ? `（P${data.page + 1}）` : ''}`;
-
-                document.querySelector('#hupumoyu-module-page').innerHTML = `
-                    <div class="hupumoyu-module-page-item prev" data-id="hupumoyu-module-page-prev">上一页</div>
-                    <div class="hupumoyu-module-page-item next" data-id="hupumoyu-module-page-next">下一页</div>
-                `;
+                let pageTitle = `${data.label}`;
+                let pageHtml = '';
+                if (!data.noPage) {
+                    pageTitle +=`${data.page ? `（P${data.page + 1}）` : ''}`;
+                    pageHtml = `
+                        <div class="hupumoyu-module-page-item prev" data-id="hupumoyu-module-page-prev">上一页</div>
+                        <div class="hupumoyu-module-page-item next" data-id="hupumoyu-module-page-next">下一页</div>
+                    `;
+                }
+                document.querySelector('[data-id="hupumoyu-module-title"]').innerHTML = pageTitle;
+                document.querySelector('#hupumoyu-module-page').innerHTML = pageHtml;
             }
 
             if (data.list && data.list.length) {
