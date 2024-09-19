@@ -16,9 +16,6 @@ body {
 	cursor: pointer;
 }
 
-.hupumoyu-module-title-main {
-}
-
 .hupumoyu-module-title-btn {
 	position: absolute;
 	z-index: 2;
@@ -41,6 +38,10 @@ body {
 	margin: 0 10px 0 0;
 	padding: 0;
 	visibility: visible;
+}
+
+.hupumoyu-module-list-box .hupumoyu-module-list font {
+	color: var(--vscode-foreground);
 }
 
 .hupumoyu-module-list,

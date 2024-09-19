@@ -81,6 +81,7 @@ export const hupuPostDetail = async (url: string) => {
             resJson: false,
             tipsName: '6-帖子详情',
         });
+        console.log('6-帖子详情-url', url);
         const $ = cheerio.load(body);
         const sResData: any = $('#__NEXT_DATA__').html() || '';
         const resData = sResData ? JSON.parse(sResData) : {};
@@ -297,10 +298,10 @@ export const hupuTeamMatchQuarterStats = async (matchId: string) => {
 };
 
 // 搜索
-export const hupuSearchInfo = async (options: { keyword: string }) => {
+export const hupuSearchInfo = async (keyword: string = '') => {
     try {
-        const res = await req(`https://m.hupu.com/api/v2/search2?keyword=${encodeURIComponent(options.keyword)}&puid=0&type=posts&topicId=0&page=1`, {
-            resJson: false,
+        const res = await req(`https://m.hupu.com/api/v2/search2?keyword=${encodeURIComponent(keyword)}&puid=0&type=posts&topicId=0&page=1`, {
+            resJson: true,
             tipsName: '15-搜索',
         });
         return res;

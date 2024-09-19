@@ -149,3 +149,10 @@ export function stockInfoFormat(str: string) {
     }
     return arr;
 }
+
+export function filterHtml (str: string) {
+    let content = str.replace(/<\/?[^>]*>/g,'');//去除标签
+    content = content .replace(/[|]*\n/,'');//去除行尾空格
+    content = content.replace(/&nbsp;/ig,''); //去除&nbsp；
+    return content;
+}

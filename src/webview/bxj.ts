@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { getAllTopicList, getModuleListByTopicId } from '../api';
+import { getAllTopicList, getModuleListByTopicId, hupuSearchInfo } from '../api';
 import PostDetailWebView from './postDetail';
 import IndexCommands from '../commands';
+import { filterHtml } from '../utils';
 
 let myStatusBarItem: vscode.StatusBarItem;
 export default class BxjViewProvider implements vscode.WebviewViewProvider {
@@ -85,7 +86,7 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         const bxjSearch = vscode.commands.registerCommand(
             'bxjTreeView.search',
             async () => {
-                this.searchInfo();
+                this.searchKeyword();
             },
         );
 
@@ -234,17 +235,38 @@ export default class BxjViewProvider implements vscode.WebviewViewProvider {
         }
     }
 
-    async searchInfo () {
-        const target: any = await vscode.window.showQuickPick(
-            [
-                {
-                    label: '请输入搜索信息',
-                    value: '',
-                },
-            ],
-        );
-        if (target) {
-            console.log(target);
+    async searchKeyword () {
+        const keyword = await vscode.window.showInputBox({
+            value: '',
+            placeHolder: '请输入搜索关键字',
+        });
+        this._view?.webview.postMessage({
+            command: 'showLoading',
+        });
+        try {
+            const res: any = await hupuSearchInfo(keyword);
+            this._view?.webview.postMessage({
+                command: 'hideLoading',
+            });
+            // console.log('搜索结果', res);
+            if (res && res.data && res.data.result) {
+                this.currentSelectTopicInfo.label = keyword || '';
+                for (let item of res.data.result.data) {
+                    item.url = `https://m.hupu.com/bbs/${item.id}`;
+                    item.tid = item.id;
+                    item.title = filterHtml(item.title);
+                }
+                this.currentSelectTopicInfo.list = res.data.result.data || [];
+                this._view?.webview.postMessage({
+                    command: 'updatePostList',
+                    data: this.currentSelectTopicInfo,
+                });
+            }
+        } catch (error) {
+            console.log('搜索报错', error);
+            this._view?.webview.postMessage({
+                command: 'hideLoading',
+            });
         }
     }
 
